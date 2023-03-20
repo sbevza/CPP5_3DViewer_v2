@@ -90,7 +90,9 @@ Develop a program to visualize the 3D model.
     - Scale the model by a given value.
     - Toggle the type of object display: wireframe model, flat shading and smooth shading (by Gouraud or Phong methods)
     - Set the light source, its base intensity (via the three components: R, G, B) and position.
-- GUI implementation, based on any GUI library with API for C++ (Qt, SFML, GTK+, Nanogui, Nngui, etc.)
+- GUI implementation, based on any GUI library with API for C++ 
+  * For Linux: GTK+, CEF, Qt, JUCE
+  * For Mac: GTK+, CEF, Qt, JUCE, SFML, Nanogui, Nngui
   The graphical user interface must contain:
     - A button to select the model file and a field to output its name.
     - A visualization area for the model.
@@ -134,4 +136,4 @@ Develop a program to visualize the 3D model.
 - Read the UV-map of the model from the obj-file
 - The program must allow saving a UV-map of the model over the selected texture into a separate BMP-file; the texture must show the specified color of the model's map
 
-💡 [Tap here](https://forms.yandex.ru/u/635a8dac068ff01bf420bfc9/) **to leave your feedback on the project**. Pedago Team really tries to make your educational experience better.
+💡 [Tap here](https://forms.yandex.ru/cloud/64181b936938722405a1286e/) **to leave your feedback on the project**. Pedago Team really tries to make your educational experience better.
