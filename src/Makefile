@@ -55,7 +55,7 @@ gcov:
 
 clean: 
 	find . \( -name '*.o' -o -name '*.a' -o -name '*.gcno' -o -name '*.gcda' -o -name '*.info' \) -exec rm -rf {} \;
-	rm -rf report report_out report.out.dSYM s21_test.dSYM s21_test 3dViewer_v2.0.tgz view
+	rm -rf report report_out report.out.dSYM s21_test.dSYM s21_test 3dViewer_v2.0.tgz view 3dViewer.pro.*
 
 clang:
 	find . -name '*.cc' -o -name '*.h' | xargs clang-format -n -style=Google

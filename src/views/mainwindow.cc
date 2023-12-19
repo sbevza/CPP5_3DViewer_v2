@@ -1,10 +1,8 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
-    : QMainWindow(parent),
-      ui_(new Ui::MainWindow),
-      settings_("School_21", "3D_Viewer_2.0"),
-      controller_(controller) {
+    : QMainWindow(parent), ui_(new Ui::MainWindow),
+      settings_("School_21", "3D_Viewer_2.0"), controller_(controller) {
   ui_->setupUi(this);
 
   QIcon icon(":/icon.png");
@@ -111,6 +109,7 @@ void MainWindow::on_ScreenShot_clicked() {
 
 void MainWindow::on_Gif_clicked() {
   if (ui_->statusbar->currentMessage() != "Для начала откройте файл модели!") {
+
     s21::SaveGifCommand saveGif;
     ui_->statusbar->showMessage("укажите папку для сохранения Gif");
     QString filePath = commandInvoker_.runCommand(&saveGif);
@@ -118,7 +117,16 @@ void MainWindow::on_Gif_clicked() {
     if (!filePath.isEmpty()) {
       s21::MediaMaker mediaMaker;
       mediaMaker.SetMedia(makeGif, ui_);
-      mediaMaker.MakeMedia(filePath);
+      // mediaMaker.MakeMedia(filePath);
+
+      if (ui_->TypeGif_box->currentIndex() == 1) {
+        rotateModelOverTime();
+        mediaMaker.MakeMedia(filePath);
+      }
+      if (ui_->TypeGif_box->currentIndex() == 2) {
+      }
+      if (ui_->TypeGif_box->currentIndex() == 2) {
+      }
     }
   }
 }
@@ -214,6 +222,42 @@ void MainWindow::on_color_edge_clicked() {
     ui_->openGLWidget->EDGEColor = color;
     SaveSettings();
   }
+}
+
+void MainWindow::rotateModelOverTime() {
+  // Устанавливаем начальный угол
+  int startAngle = ui_->openGLWidget->RotZ;
+
+  // Устанавливаем конечный угол (360 градусов)
+  int endAngle = startAngle + 360;
+
+  // Устанавливаем количество шагов (подбирайте под необходимую плавность
+  // анимации)
+  int numSteps = 100;
+
+  // Вычисляем изменение угла на каждом шаге
+  int angleIncrement = (endAngle - startAngle) / numSteps;
+
+  // Создаем таймер с интервалом для плавной анимации
+  QTimer *timer = new QTimer(this);
+  connect(timer, &QTimer::timeout, [=]() {
+    // Увеличиваем угол на текущем шаге
+    ui_->openGLWidget->RotZ += angleIncrement;
+
+    // Перерисовываем виджет
+    ui_->openGLWidget->update();
+
+    // Проверяем, достигли ли конечного угла
+    if (ui_->openGLWidget->RotZ >= endAngle) {
+      // Останавливаем таймер
+      timer->stop();
+    }
+  });
+
+  // Запускаем таймер с интервалом для достижения плавности анимации
+  int animationDuration = 5000; // 5 секунд
+  int timerInterval = animationDuration / numSteps;
+  timer->start(timerInterval);
 }
 
 void MainWindow::on_Background_color_clicked() {

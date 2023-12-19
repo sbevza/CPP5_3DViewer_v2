@@ -45,7 +45,6 @@ void glWidget::paintGL() {
     glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
     glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
     SetEDGEType();
-
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisable(GL_LINE_STIPPLE);
   } else {
@@ -178,19 +177,22 @@ void glWidget::SetScaleFromSlider(int sliderValue) {
   update();
 }
 
-  void glWidget::setTypeViews(){
-    if (ViewType == 1){
-          glShadeModel(GL_FLAT);
-                  qDebug() << "Setting view type to GL_FLAT";
-
-    }
-    if (ViewType == 2){
-          glShadeModel(GL_SMOOTH);
-                  qDebug() << "Setting view type to GL_SMOOTH";
-
-    }
-    update();
+void glWidget::setTypeViews() {
+  if (ViewType == 1) {
+    glShadeModel(GL_FLAT);
   }
+  if (ViewType == 2) {
+    glShadeModel(GL_SMOOTH);
+  }
+  update();
+}
+
+void glWidget::PaintWireFrame() {
+  glVertexPointer(3, GL_DOUBLE, 0, data.vertexNormal.data()); //каркасный рисунок
+  glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT,
+                 data.faces.data()); //каркасный рисунок
+}
+
 
 
 void glWidget::SetCenterModel() {
@@ -216,4 +218,4 @@ void glWidget::SetCenterModel() {
   ProjectionChange();
   update();
 }
-}  // namespace s21
+} // namespace s21

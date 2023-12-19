@@ -48,6 +48,7 @@ class MainWindow : public QMainWindow {
                   std::function<void(int)> updateFunc);
   static void resetComboBox(QComboBox* box, int index);
   static void resetSlider(QSlider* slider, int value);
+  void rotateModelOverTime();
 };
 
 #endif  // CPP4_3DVIEWER_V2_0_SRC_VIEWS_MAINWINDOW_H_
