@@ -14,6 +14,8 @@ constexpr size_t kMaxLineBuffer = 4096;
 
 struct VertexIndex {
   int vIdx;
+  int vtIdx;
+  int vnIdx;
 };
 
 struct Attrib {
@@ -26,7 +28,11 @@ struct Attrib {
   float minZ, maxZ;
 
   std::vector<float> vertices;
+  std::vector<float> vertexTexture;
+  std::vector<float> vertexNormal;
   std::vector<unsigned int> faces;
+  std::vector<int> vtIdx;
+  std::vector<int> vnIdx;
 };
 
 struct LineInfo {
@@ -34,14 +40,18 @@ struct LineInfo {
   size_t len;
 };
 
-enum class CommandType { EMPTY, V, F };
+enum class CommandType { EMPTY, V, F, VT, VN };
 
 struct Command {
   float vx, vy, vz;
-  int f[kMaxFacesPerFLine];
+  float vtU, vtV;
+  float vnX, vnY, vnZ;
+  std::vector<int> f;
+  std::vector<int> vtIdx;
+  std::vector<int> vnIdx;
+
   size_t numF;
   size_t numFaceNumVerts;
-  int f_num_verts[kMaxFacesPerFLine];
   CommandType type;
 };
 

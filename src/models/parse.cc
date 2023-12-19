@@ -49,7 +49,11 @@ void Parser::parseObj(Attrib &attrib, std::string &filename) {
 
 void Parser::attribInit() {
   attrib_->vertices.clear();
+  attrib_->vertexTexture.clear();
+  attrib_->vertexNormal.clear();
   attrib_->faces.clear();
+  attrib_->vtIdx.clear();
+  attrib_->vnIdx.clear();
   attrib_->numVertices = 0;
   attrib_->numFaces = 0;
   attrib_->numFaceNumVerts = 0;
@@ -143,10 +147,30 @@ float Parser::parseDouble(const std::string &str, size_t &pos) {
 
 VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
   VertexIndex vi{};
-  vi.vIdx = 0;
-  size_t nextPos = str.find_first_of(" \t\r", pos);
+  size_t nextPos = str.find_first_of('/', pos);
 
   vi.vIdx = std::stoi(str.substr(pos, nextPos - pos));
+  vi.vtIdx = -1;
+  vi.vnIdx = -1;
+
+  if (nextPos != std::string::npos) {
+    pos = nextPos + 1;
+    nextPos = str.find_first_of("/ \t\r", pos);
+
+    if (nextPos != pos) {
+      vi.vtIdx = std::stoi(str.substr(pos, nextPos - pos));
+    }
+
+    if (nextPos != std::string::npos && str[nextPos] == '/') {
+      pos = nextPos + 1;
+      nextPos = str.find_first_of(" \t\r", pos);
+
+      if (nextPos != pos) {
+        vi.vnIdx = std::stoi(str.substr(pos, nextPos - pos));
+      }
+    }
+  }
+
   pos = (nextPos == std::string::npos) ? str.length() : nextPos;
   return vi;
 }
@@ -168,6 +192,21 @@ void Parser::parseLine(Command &command, const std::string &line, int &res) {
       command.vz = parseDouble(line, pos);
       command.type = CommandType::V;
       res = 1;
+    } else if (line.compare(pos, 3, "vt ") == 0 ||
+        line.compare(pos, 3, "vt\t") == 0) {
+      pos += 3;
+      command.vtU = parseDouble(line, pos);
+      command.vtV = parseDouble(line, pos);
+      command.type = CommandType::VT;
+      res = 1;
+    } else if (line.compare(pos, 3, "vn ") == 0 ||
+        line.compare(pos, 3, "vn\t") == 0) {
+      pos += 3;
+      command.vnX = parseDouble(line, pos);
+      command.vnY = parseDouble(line, pos);
+      command.vnZ = parseDouble(line, pos);
+      command.type = CommandType::VN;
+      res = 1;
     } else if (line.compare(pos, 2, "f ") == 0 ||
                line.compare(pos, 2, "f\t") == 0) {
       size_t num_f = 0;
@@ -180,16 +219,19 @@ void Parser::parseLine(Command &command, const std::string &line, int &res) {
         skipSpace(line, pos);
 
         f[num_f].vIdx = vi.vIdx;
+        f[num_f].vtIdx = vi.vtIdx;
+        f[num_f].vnIdx = vi.vnIdx;
         num_f++;
       }
       command.type = CommandType::F;
 
       if (num_f < kMaxFacesPerFLine) {
         for (size_t k = 0; k < num_f; k++) {
-          command.f[k] = f[k].vIdx;
+          command.f.push_back(f[k].vIdx);
+          command.vtIdx.push_back(f[k].vtIdx);
+          command.vnIdx.push_back(f[k].vnIdx);
         }
         command.numF = num_f;
-        command.f_num_verts[0] = static_cast<int>(num_f);
         command.numFaceNumVerts = 1;
       } else {
         err_ = true;
