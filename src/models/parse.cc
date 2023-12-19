@@ -75,17 +75,15 @@ std::vector<char> Parser::getFileData() {
     throw std::runtime_error("Failed to open file: " + filename_);
   }
 
-  auto file_size = std::filesystem::file_size(filename_);
-  if (file_size == 0) {
+  std::vector<char> buffer((std::istreambuf_iterator<char>(file)),
+                           std::istreambuf_iterator<char>());
+
+  if (buffer.empty()) {
     throw std::runtime_error("The file is empty");
   }
 
-  std::vector<char> buffer(file_size);
-  if (!file.read(buffer.data(), static_cast<long>(file_size))) {
-    throw std::runtime_error("Failed to read file: " + filename_);
-  }
-
   return buffer;
+
 }
 
 int Parser::isLineEnding(std::vector<char> &ch, size_t i, size_t end_i) {
@@ -179,69 +177,76 @@ VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
 }
 
 void Parser::parseLine(Command &command, const std::string &line, int &res) {
-  if (line.size() >= kMaxLineBuffer) err_ = true;
-  if (!err_) {
+  res = 0;
+  if (line.size() >= kMaxLineBuffer) {
+    err_ = true;
+  } else {
     command.type = CommandType::EMPTY;
     size_t pos = 0;
     skipSpace(line, pos);
 
-    if ((line[pos] == '\0') || (line[pos] == '#')) {
-      res = 0;
-    } else if (line.compare(pos, 2, "v ") == 0 ||
-        line.compare(pos, 2, "v\t") == 0) {
-      pos += 2;
-      command.vx = parseDouble(line, pos);
-      command.vy = parseDouble(line, pos);
-      command.vz = parseDouble(line, pos);
-      command.type = CommandType::V;
-      res = 1;
-    } else if (line.compare(pos, 3, "vt ") == 0 ||
-        line.compare(pos, 3, "vt\t") == 0) {
-      pos += 3;
-      command.vtU = parseDouble(line, pos);
-      command.vtV = parseDouble(line, pos);
-      command.type = CommandType::VT;
-      res = 1;
-    } else if (line.compare(pos, 3, "vn ") == 0 ||
-        line.compare(pos, 3, "vn\t") == 0) {
-      pos += 3;
-      command.vnX = parseDouble(line, pos);
-      command.vnY = parseDouble(line, pos);
-      command.vnZ = parseDouble(line, pos);
-      command.type = CommandType::VN;
-      res = 1;
-    } else if (line.compare(pos, 2, "f ") == 0 ||
-        line.compare(pos, 2, "f\t") == 0) {
-      size_t num_f = 0;
-      VertexIndex f[kMaxFacesPerFLine];
-      pos += 2;
-      skipSpace(line, pos);
-
-      while (!(line[pos] == '\r' || line[pos] == '\n' || line[pos] == '\0')) {
-        VertexIndex vi = parseRawTriple(line, pos);
-        skipSpace(line, pos);
-
-        f[num_f].vIdx = vi.vIdx;
-        f[num_f].vtIdx = vi.vtIdx;
-        f[num_f].vnIdx = vi.vnIdx;
-        num_f++;
-      }
-      command.type = CommandType::F;
-
-      if (num_f < kMaxFacesPerFLine) {
-        for (size_t k = 0; k < num_f; k++) {
-          command.f.push_back(f[k].vIdx);
-          command.vtIdx.push_back(f[k].vtIdx);
-          command.vnIdx.push_back(f[k].vnIdx);
-        }
-        command.numF = num_f;
-        command.numFaceNumVerts = 1;
-      } else {
-        err_ = true;
-      }
-      res = 1;
+    if (line.compare(pos, 2, "v ") == 0 || line.compare(pos, 2, "v\t") == 0) {
+      parseVertexCommand(command, line, pos, res);
+    } else if (line.compare(pos, 3, "vt ") == 0 || line.compare(pos, 3, "vt\t") == 0) {
+      parseTextureCommand(command, line, pos, res);
+    } else if (line.compare(pos, 3, "vn ") == 0 || line.compare(pos, 3, "vn\t") == 0) {
+      parseNormalCommand(command, line, pos, res);
+    } else if (line.compare(pos, 2, "f ") == 0 || line.compare(pos, 2, "f\t") == 0) {
+      parseFaceCommand(command, line, pos, res);
     }
   }
+}
+
+void Parser::parseVertexCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+  pos += 2;
+  command.vx = parseDouble(line, pos);
+  command.vy = parseDouble(line, pos);
+  command.vz = parseDouble(line, pos);
+  command.type = CommandType::V;
+  res = 1;
+}
+
+void Parser::parseTextureCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+  pos += 3;
+  command.vtU = parseDouble(line, pos);
+  command.vtV = parseDouble(line, pos);
+  command.type = CommandType::VT;
+  res = 1;
+}
+
+void Parser::parseNormalCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+  pos += 3;
+  command.vnX = parseDouble(line, pos);
+  command.vnY = parseDouble(line, pos);
+  command.vnZ = parseDouble(line, pos);
+  command.type = CommandType::VN;
+  res = 1;
+}
+
+void Parser::parseFaceCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+  pos += 2;
+  skipSpace(line, pos);
+
+  size_t num_f = 0;
+  VertexIndex f[kMaxFacesPerFLine];
+  while (!(line[pos] == '\r' || line[pos] == '\n' || line[pos] == '\0')) {
+    if (num_f >= kMaxFacesPerFLine) {
+      err_ = true;
+      return;
+    }
+    f[num_f++] = parseRawTriple(line, pos);
+    skipSpace(line, pos);
+  }
+
+  command.type = CommandType::F;
+  for (size_t k = 0; k < num_f; k++) {
+    command.f.push_back(f[k].vIdx);
+    command.vtIdx.push_back(f[k].vtIdx);
+    command.vnIdx.push_back(f[k].vnIdx);
+  }
+  command.numF = num_f;
+  command.numFaceNumVerts = 1;
+  res = 1;
 }
 
 size_t Parser::fixIndex(int idx, size_t num_v) {
@@ -261,7 +266,7 @@ void Parser::setAttrib(size_t num_v, size_t num_f, size_t num_faces) {
     attrib_->numFaces = static_cast<unsigned int>(num_f);
     attrib_->numFaceNumVerts = static_cast<unsigned int>(num_faces);
     attrib_->vertices = std::vector<float>(num_v * 3);
-    attrib_->faces = std::vector<unsigned int>(num_f * 2);
+//    attrib_->faces = std::vector<unsigned int>(num_f * 2);
   } else {
     err_ = true;
   }
@@ -301,6 +306,10 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
   attrib_->maxY = maxY - centerY;
   attrib_->minZ = minZ - centerZ;
   attrib_->maxZ = maxZ - centerZ;
+  for (const auto& face : uniqueFace_) {
+    attrib_->faces.push_back(face.first);
+    attrib_->faces.push_back(face.second);
+  }
 }
 
 void Parser::processNormal(const Command &command) {
@@ -350,15 +359,26 @@ void Parser::processFace(const Command &command, size_t &f_count,
       attrib_->vnIdx[previous_v_idx] = fixIndex(command.vnIdx[k - 1], v_count);
       attrib_->vtIdx[previous_v_idx] = fixIndex(command.vtIdx[k - 1], v_count);
       size_t v_idx = fixIndex(command.f[k], v_count);
-      attrib_->faces[f_count++] = previous_v_idx;
-      attrib_->faces[f_count++] = v_idx;
+      auto
+          result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
+      if (result.second) {
+        f_count += 2;
+//        attrib_->faces[f_count++] = previous_v_idx;
+//        attrib_->faces[f_count++] = v_idx;
+      }
       previous_v_idx = v_idx;
     }
     attrib_->vnIdx[previous_v_idx] = fixIndex(command.vnIdx[k - 1], v_count);
     attrib_->vtIdx[previous_v_idx] = fixIndex(command.vtIdx[k - 1], v_count);
     // Замыкание грани
-    attrib_->faces[f_count++] = previous_v_idx;
-    attrib_->faces[f_count++] = fixIndex(command.f[0], v_count);
+    size_t v_idx = fixIndex(command.f[0], v_count);
+    auto result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
+    if (result.second) {
+      f_count += 2;
+//    attrib_->faces[f_count++] = previous_v_idx;
+//    attrib_->faces[f_count++] = v_idx;
+    }
+
   }
 }
 

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <set>
 
 namespace s21 {
 
@@ -66,6 +67,8 @@ class Parser {
   std::string filename_;
   Attrib *attrib_{nullptr};
 
+  std::set<std::pair<int, int>> uniqueFace_;
+
   void commandToAttrib(const std::vector<Command> &commands);
   std::vector<char> getFileData();
   static int isLineEnding(std::vector<char> &ch, size_t i, size_t end_i);
@@ -84,6 +87,10 @@ class Parser {
   void processFace(const Command &command, size_t &f_count, size_t v_count);
   void processTexture(const Command &command);
   void processNormal(const Command &command);
+  static void parseVertexCommand(Command &command, const std::string &line, size_t &pos, int &res);
+  static void parseTextureCommand(Command &command, const std::string &line, size_t &pos, int &res);
+  static void parseNormalCommand(Command &command, const std::string &line, size_t &pos, int &res);
+  void parseFaceCommand(Command &command, const std::string &line, size_t &pos, int &res);
 };
 }  // namespace s21
 
