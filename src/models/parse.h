@@ -31,8 +31,8 @@ struct Attrib {
   std::vector<float> vertexTexture;
   std::vector<float> vertexNormal;
   std::vector<unsigned int> faces;
-  std::vector<int> vtIdx;
-  std::vector<int> vnIdx;
+  std::vector<size_t> vtIdx;
+  std::vector<size_t> vnIdx;
 };
 
 struct LineInfo {
@@ -82,6 +82,8 @@ class Parser {
   void processVertex(const Command &command, float centerX, float centerY,
                      float centerZ, size_t &v_count);
   void processFace(const Command &command, size_t &f_count, size_t v_count);
+  void processTexture(const Command &command);
+  void processNormal(const Command &command);
 };
 }  // namespace s21
 
