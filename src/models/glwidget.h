@@ -14,7 +14,7 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
  public:
   explicit glWidget(QWidget *parent = nullptr);
 
-  int ProjectionType, LineType, EDGEType;
+  int ProjectionType, LineType, EDGEType, ViewType;
   float LineThick, EDGEThick, Scale;
 
   QColor LineColor;
@@ -29,7 +29,7 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   GLfloat RotY;
   GLfloat RotZ;
 
-  s21::Attrib data = {0, 0, 0, 0, 0, 0, 0, 0, 0, {}, {}};
+  s21::Attrib data = {0, 0, 0, 0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}};
 
   void SetBGColor();
   void SetCenterModel();
@@ -53,6 +53,7 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   void SetEDGEType();
   void setPerspectiveProjection();
   void setOrthographicProjection();
+  void setTypeViews();
   GLfloat calculateAspect();
   std::tuple<float, float, float> calculateModelDimensions() const;
 };

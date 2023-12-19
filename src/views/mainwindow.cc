@@ -33,6 +33,8 @@ void MainWindow::initChangeBoxes() {
                [=](int index) { ui_->openGLWidget->ProjectionType = index; });
   initComboBox(ui_->edge_box,
                [=](int index) { ui_->openGLWidget->EDGEType = index; });
+  initComboBox(ui_->ViewType_box,
+               [=](int index) { ui_->openGLWidget->ViewType = index; });
 }
 
 void MainWindow::initSlider(QSlider *slider, QSpinBox *spinBox,

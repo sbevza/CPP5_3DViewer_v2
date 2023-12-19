@@ -39,6 +39,7 @@ void glWidget::paintGL() {
     SetBGColor();
     ProjectionChange();
     SetTypeLine();
+    setTypeViews();
     glColor3f(LineColor.redF(), LineColor.greenF(), LineColor.blueF());
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
@@ -176,6 +177,21 @@ void glWidget::SetScaleFromSlider(int sliderValue) {
   Scale = 0.5f + normalizedValue * 1.5f;
   update();
 }
+
+  void glWidget::setTypeViews(){
+    if (ViewType == 1){
+          glShadeModel(GL_FLAT);
+                  qDebug() << "Setting view type to GL_FLAT";
+
+    }
+    if (ViewType == 2){
+          glShadeModel(GL_SMOOTH);
+                  qDebug() << "Setting view type to GL_SMOOTH";
+
+    }
+    update();
+  }
+
 
 void glWidget::SetCenterModel() {
   Scale = 1.0f;

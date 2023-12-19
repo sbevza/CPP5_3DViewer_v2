@@ -36,10 +36,10 @@ uninstall:
 	rm -rf build/
 
 dist:
-	mkdir 3dViewer_v2.0/
-	cp -a controllers models objs tests views Makefile main.cc readme.txt 3dViewer.pro 3dViewer_v2.0
-	tar cvzf 3dViewer_v2.0.tgz 3dViewer_v2.0/
-	rm -rf 3dViewer_v2.0/
+	mkdir 3dViewer_v2.1/
+	cp -a controllers models objs tests views Makefile main.cc readme.txt 3dViewer.pro 3dViewer_v2.1
+	tar cvzf 3dViewer_v2.1.tgz 3dViewer_v2.1/
+	rm -rf 3dViewer_v2.1/
 
 test: 
 	$(TEST)
@@ -55,7 +55,7 @@ gcov:
 
 clean: 
 	find . \( -name '*.o' -o -name '*.a' -o -name '*.gcno' -o -name '*.gcda' -o -name '*.info' \) -exec rm -rf {} \;
-	rm -rf report report_out report.out.dSYM s21_test.dSYM s21_test 3dViewer_v2.0.tgz
+	rm -rf report report_out report.out.dSYM s21_test.dSYM s21_test 3dViewer_v2.0.tgz view
 
 clang:
 	find . -name '*.cc' -o -name '*.h' | xargs clang-format -n -style=Google

@@ -1,6 +1,6 @@
 QT += core gui openglwidgets
 
-DEFINES += GL_SILENCE_DEPRECATION
+#DEFINES += GL_SILENCE_DEPRECATION
 
 CONFIG += c++17
 

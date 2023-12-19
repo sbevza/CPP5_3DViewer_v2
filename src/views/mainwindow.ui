@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1499</width>
-    <height>828</height>
+    <width>1505</width>
+    <height>987</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
      <string>Открыть файл .OBJ</string>
     </property>
    </widget>
-   <widget class="s21::glWidget" name="openGLWidget">
+   <widget class="s21::glWidget" name="openGLWidget" native="true">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>1080</x>
-      <y>250</y>
+      <y>340</y>
       <width>411</width>
       <height>131</height>
      </rect>
@@ -275,7 +275,7 @@
     <property name="geometry">
      <rect>
       <x>1080</x>
-      <y>380</y>
+      <y>470</y>
       <width>411</width>
       <height>151</height>
      </rect>
@@ -421,7 +421,7 @@
     <property name="geometry">
      <rect>
       <x>1080</x>
-      <y>110</y>
+      <y>200</y>
       <width>411</width>
       <height>131</height>
      </rect>
@@ -784,7 +784,7 @@
     <property name="geometry">
      <rect>
       <x>1080</x>
-      <y>530</y>
+      <y>620</y>
       <width>411</width>
       <height>151</height>
      </rect>
@@ -929,9 +929,9 @@
     <property name="geometry">
      <rect>
       <x>1080</x>
-      <y>690</y>
+      <y>780</y>
       <width>411</width>
-      <height>111</height>
+      <height>75</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_5">
@@ -950,20 +950,276 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>1080</x>
+      <y>120</y>
+      <width>411</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Отцентровать модель</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>1080</x>
+      <y>160</y>
+      <width>411</width>
+      <height>38</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="ViewType_line">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Тип отображения:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="ViewType_box">
        <item>
-        <widget class="QPushButton" name="Gif">
+        <property name="text">
+         <string>Каркасная модель</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Плоское затененеие</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Мягкое затенение</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>1080</x>
+      <y>860</y>
+      <width>411</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_8">
+     <item row="0" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_21">
+       <item>
+        <widget class="QPushButton" name="pushButton_4">
          <property name="text">
-          <string>Создать Gif</string>
+          <string>Загрузить техстуру</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="ScreenShot">
+        <widget class="QPushButton" name="pushButton_5">
          <property name="text">
-          <string>Сделать снимок</string>
+          <string>Убрать техстуру</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
          </property>
         </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="pushButton_6">
+       <property name="text">
+        <string>Создать UV развертку</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>850</y>
+      <width>391</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0" colspan="2">
+      <widget class="QPushButton" name="ScreenShot">
+       <property name="text">
+        <string>Сделать снимок</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="Gif">
+       <property name="text">
+        <string>Создать Gif</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBox_2">
+       <item>
+        <property name="text">
+         <string>Ручное перемещение</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Перемещение по X</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Перемещение по Y</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Перемещение по Z</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>820</y>
+      <width>631</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_10">
+     <item row="0" column="2">
+      <layout class="QGridLayout" name="gridLayout_9">
+       <item row="1" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>X:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_4"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Y:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_5"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Z:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_6"/>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="visible_metod_3">
+         <property name="text">
+          <string>Положения источника света:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="text">
+        <string>Добавить освещение</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QLabel" name="visible_metod_2">
+         <property name="text">
+          <string>Цвет источника света:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>R:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>G:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_2"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>B:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_3"/>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -974,9 +1230,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>glWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header location="global">models/glwidget.h</header>
+   <class>s21::glWidget</class>
+   <extends>QWidget</extends>
+   <header>models/glwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
