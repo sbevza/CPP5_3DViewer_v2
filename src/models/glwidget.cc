@@ -43,6 +43,8 @@ void glWidget::paintGL() {
     glColor3f(LineColor.redF(), LineColor.greenF(), LineColor.blueF());
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
+    glNormalPointer(GL_FLOAT, 0, data.vertexNormal.data());  //теневой и текстурный рисунок
+    glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
     glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
     SetEDGEType();
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -184,7 +186,7 @@ void glWidget::setTypeViews() {
   if (ViewType == 2) {
     glShadeModel(GL_SMOOTH);
   }
-  update();
+//  update();
 }
 
 void glWidget::PaintWireFrame() {
