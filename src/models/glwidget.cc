@@ -9,18 +9,8 @@ glWidget::glWidget(QWidget *parent) : QOpenGLWidget(parent), Scale(1.0f) {
 void glWidget::initializeGL() {
   initializeOpenGLFunctions();
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_LINE_SMOOTH);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnableClientState(GL_VERTEX_ARRAY);
   SetBGColor();
-
-  if (EDGEType != 0) {
-    glEnable(GL_PROGRAM_POINT_SIZE);
-  }
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum(-10, 10, -10, 10, 0.001, 100);
 }
 
 void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -28,40 +18,19 @@ void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
 void glWidget::paintGL() {
   if (data.vertices.data()) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
+    ProjectionChange();
     glTranslatef(PosX, PosY, PosZ);
     glScalef(Scale, Scale, Scale);
     glRotatef(RotX, 1.0f, 0.0f, 0.0f);
     glRotatef(RotY, 0.0f, 1.0f, 0.0f);
     glRotatef(RotZ, 0.0f, 0.0f, 1.0f);
     SetBGColor();
-    ProjectionChange();
     SetTypeLine();
     setTypeViews();
     glColor3f(LineColor.redF(), LineColor.greenF(), LineColor.blueF());
-    glEnableClientState(GL_VERTEX_ARRAY);
-    setTypeViews();
     TypeViewsModel();
-
-
-    // glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
-
-    // glNormalPointer(GL_FLOAT, 0,
-    //                 data.vertexNormal.data()); //теневой и текстурный рисунок
-    // glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
-
-    // glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT,
-    // data.faces.data());
-
-    // SetEDGEType();
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisable(GL_LINE_STIPPLE);
-  } else {
+  } else
     SetBGColor();
-  }
 }
 
 void glWidget::mousePressEvent(QMouseEvent *ma) { mPos_ = ma->pos(); }
@@ -156,17 +125,13 @@ void glWidget::SetTypeLine() {
 
 void glWidget::SetEDGEType() {
   glPointSize(EDGEThick * 1.5);
-  if (EDGEType == 1) {
-    // Отрисовка вершин в форме кружочков
-    glEnable(GL_POINT_SMOOTH);
 
-  } else if (EDGEType == 2) {
-    glDisable(GL_POINT_SMOOTH);
-  }
-
-  if (EDGEType != 0) {
+  if (EDGEType) {
+    if (EDGEType == 1)
+      glEnable(GL_POINT_SMOOTH);
+    if (EDGEType == 2)
+      glDisable(GL_POINT_SMOOTH);
     glColor3f(EDGEColor.redF(), EDGEColor.greenF(), EDGEColor.blueF());
-
     glDrawElements(GL_POINTS, data.numFaces, GL_UNSIGNED_INT,
                    data.faces.data());
   }
@@ -196,7 +161,6 @@ void glWidget::setTypeViews() {
   if (ViewType == 2) {
     glShadeModel(GL_SMOOTH);
   }
-  //  update();
 }
 
 void glWidget::TypeViewsModel() {
@@ -210,7 +174,6 @@ void glWidget::PaintWireFrame() {
   glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
   glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
   SetEDGEType();
-
 }
 
 void glWidget::PaintShading() {
@@ -219,6 +182,7 @@ void glWidget::PaintShading() {
   glEnable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
   glEnable(GL_NORMALIZE); //теневой и текстурный рисунок
   glEnable(GL_TEXTURE_2D); //текстурный рисунок
+  setTypeViews();
   glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
   glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
   glVertexPointer(3, GL_DOUBLE, 0,

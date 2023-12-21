@@ -13,7 +13,6 @@ MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
   initChangeBoxes();
   initSliders();
   statusBar()->showMessage("Для начала откройте файл модели!");
-
 }
 
 void MainWindow::initComboBox(QComboBox *comboBox,
@@ -229,21 +228,8 @@ void MainWindow::on_color_edge_clicked() {
 }
 
 void MainWindow::rotateModelOverTime(QString rotationAxis) {
-  // Устанавливаем начальный угол
-  GLfloat startAngle = 0.0f;  // Начальный угол всегда 0
-
-  // Устанавливаем конечный угол (360 градусов)
-  GLfloat endAngle = 360.0f;
-
-  // Устанавливаем количество шагов (подбирайте под необходимую плавность
-  // анимации)
-  int numSteps = 100;
-
-  // Вычисляем изменение угла на каждом шаге
-  GLfloat angleIncrement = (endAngle - startAngle) / numSteps;
-
   // Определяем, по какой оси вращать
-  GLfloat* rotationPtr = nullptr;
+  GLfloat *rotationPtr = nullptr;
   if (rotationAxis == "RotX") {
     rotationPtr = &ui_->openGLWidget->RotX;
   } else if (rotationAxis == "RotY") {
@@ -252,28 +238,28 @@ void MainWindow::rotateModelOverTime(QString rotationAxis) {
     rotationPtr = &ui_->openGLWidget->RotZ;
   }
 
+  // Вычисляем интервал таймера (16 миллисекунд)
+  int timerInterval = 16;
+
   // Создаем таймер с интервалом для плавной анимации
-  QTimer *timer = new QTimer(this);
+  QTimer* timer = new QTimer(this);
   connect(timer, &QTimer::timeout, [=]() {
-    // Увеличиваем угол на текущем шаге
-    *rotationPtr += angleIncrement;
+    // Увеличиваем угол на 1 градус
+    *rotationPtr += 1.0;
 
     // Перерисовываем виджет
     ui_->openGLWidget->update();
 
     // Проверяем, достигли ли конечного угла
-    if (*rotationPtr >= endAngle) {
+    if (*rotationPtr >= (*rotationPtr + 360.0f)) {
       // Останавливаем таймер
       timer->stop();
     }
   });
 
-  // Запускаем таймер с интервалом для достижения плавности анимации
-  int animationDuration = 5000; // 5 секунд
-  int timerInterval = animationDuration / numSteps;
+  // Запускаем таймер с интервалом
   timer->start(timerInterval);
 }
-
 
 
 void MainWindow::on_Background_color_clicked() {
@@ -285,8 +271,6 @@ void MainWindow::on_Background_color_clicked() {
   }
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    ui_->openGLWidget->SetCenterModel();
+void MainWindow::on_pushButton_clicked() {
+  ui_->openGLWidget->SetCenterModel();
 }
-
