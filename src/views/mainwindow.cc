@@ -284,3 +284,9 @@ void MainWindow::on_Background_color_clicked() {
     SaveSettings();
   }
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+    ui_->openGLWidget->SetCenterModel();
+}
+

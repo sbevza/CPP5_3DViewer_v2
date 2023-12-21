@@ -34,7 +34,9 @@ class MainWindow : public QMainWindow {
   void on_Vertex_color_clicked();
   void on_color_edge_clicked();
 
- private:
+  void on_pushButton_clicked();
+
+  private:
   Ui::MainWindow* ui_;
   QSettings settings_;
   s21::Controller* controller_;
