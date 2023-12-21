@@ -237,7 +237,7 @@ void MainWindow::rotateModelOverTime(QString rotationAxis) {
   } else if (rotationAxis == "RotZ") {
     rotationPtr = &ui_->openGLWidget->RotZ;
   }
-
+  GLfloat startAngle = *rotationPtr;
   // Вычисляем интервал таймера (16 миллисекунд)
   int timerInterval = 16;
 
@@ -251,7 +251,7 @@ void MainWindow::rotateModelOverTime(QString rotationAxis) {
     ui_->openGLWidget->update();
 
     // Проверяем, достигли ли конечного угла
-    if (*rotationPtr >= (*rotationPtr + 360.0f)) {
+    if (*rotationPtr == (startAngle + 360.0f)) {
       // Останавливаем таймер
       timer->stop();
     }
