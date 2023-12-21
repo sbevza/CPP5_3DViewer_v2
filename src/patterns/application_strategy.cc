@@ -39,7 +39,6 @@ void StrategyGif::make(QString filename) {
 
   gif.GifBegin(&gifWriter, filename.toStdString().c_str(), targetWidth,
                targetHeight, 100);
-  ui_->statusbar->showMessage("Идет создание Gif, вращайте модель!");
 
   for (short int i = 0; i < 50; ++i) {
     QPixmap pixmap(ui_->openGLWidget->size());

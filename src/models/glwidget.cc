@@ -42,11 +42,21 @@ void glWidget::paintGL() {
     setTypeViews();
     glColor3f(LineColor.redF(), LineColor.greenF(), LineColor.blueF());
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
-    glNormalPointer(GL_FLOAT, 0, data.vertexNormal.data());  //теневой и текстурный рисунок
-    glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
-    glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
-    SetEDGEType();
+    setTypeViews();
+    TypeViewsModel();
+
+
+    // glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
+
+    // glNormalPointer(GL_FLOAT, 0,
+    //                 data.vertexNormal.data()); //теневой и текстурный рисунок
+    // glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
+
+    // glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT,
+    // data.faces.data());
+
+    // SetEDGEType();
+
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisable(GL_LINE_STIPPLE);
   } else {
@@ -186,16 +196,47 @@ void glWidget::setTypeViews() {
   if (ViewType == 2) {
     glShadeModel(GL_SMOOTH);
   }
-//  update();
+  //  update();
+}
+
+void glWidget::TypeViewsModel() {
+  if (ViewType == 0) {
+    PaintWireFrame();
+  } else
+    PaintShading();
 }
 
 void glWidget::PaintWireFrame() {
-  glVertexPointer(3, GL_DOUBLE, 0, data.vertexNormal.data()); //каркасный рисунок
-  glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT,
-                 data.faces.data()); //каркасный рисунок
+  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
+  glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
+  SetEDGEType();
+
 }
 
-
+void glWidget::PaintShading() {
+  glEnable(GL_LIGHTING); //теневой и текстурный рисунок
+  glEnable(GL_LIGHT0);   //теневой и текстурный рисунок
+  glEnable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
+  glEnable(GL_NORMALIZE); //теневой и текстурный рисунок
+  glEnable(GL_TEXTURE_2D); //текстурный рисунок
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
+  glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
+  glVertexPointer(3, GL_DOUBLE, 0,
+                  data.vertices.data()); //теневой и текстурный рисунок
+  glNormalPointer(GL_DOUBLE, 0,
+                  data.vertexNormal.data()); //теневой и текстурный рисунок
+  glTexCoordPointer(2, GL_DOUBLE, 0,
+                    data.vertexTexture.data()); //текстурный рисунок
+  glDrawElements(GL_TRIANGLES, data.numFaceNumVerts, GL_UNSIGNED_INT,
+                 data.vnIdx.data()); // теневой и текстурный рисунок
+  glDisable(GL_TEXTURE_2D); //текстурный рисунок
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
+  glDisable(GL_LIGHTING); //теневой и текстурный рисунок
+  glDisable(GL_LIGHT0); //теневой и текстурный рисунок
+  glDisable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
+  glDisable(GL_NORMALIZE); //теневой и текстурный рисунок
+  glDisableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
+}
 
 void glWidget::SetCenterModel() {
   Scale = 1.0f;

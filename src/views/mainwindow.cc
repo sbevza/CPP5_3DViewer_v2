@@ -13,6 +13,7 @@ MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
   initChangeBoxes();
   initSliders();
   statusBar()->showMessage("Для начала откройте файл модели!");
+
 }
 
 void MainWindow::initComboBox(QComboBox *comboBox,
@@ -106,7 +107,6 @@ void MainWindow::on_ScreenShot_clicked() {
     }
   }
 }
-
 void MainWindow::on_Gif_clicked() {
   if (ui_->statusbar->currentMessage() != "Для начала откройте файл модели!") {
 
@@ -117,16 +117,20 @@ void MainWindow::on_Gif_clicked() {
     if (!filePath.isEmpty()) {
       s21::MediaMaker mediaMaker;
       mediaMaker.SetMedia(makeGif, ui_);
-      // mediaMaker.MakeMedia(filePath);
 
       if (ui_->TypeGif_box->currentIndex() == 1) {
-        rotateModelOverTime();
-        mediaMaker.MakeMedia(filePath);
+        rotateModelOverTime("RotX");
+        // mediaMaker.MakeMedia(filePath);
       }
       if (ui_->TypeGif_box->currentIndex() == 2) {
+        rotateModelOverTime("RotY");
+        // mediaMaker.MakeMedia(filePath);
       }
-      if (ui_->TypeGif_box->currentIndex() == 2) {
+      if (ui_->TypeGif_box->currentIndex() == 3) {
+        rotateModelOverTime("RotZ");
+        // mediaMaker.MakeMedia(filePath);
       }
+      mediaMaker.MakeMedia(filePath);
     }
   }
 }
@@ -224,31 +228,41 @@ void MainWindow::on_color_edge_clicked() {
   }
 }
 
-void MainWindow::rotateModelOverTime() {
+void MainWindow::rotateModelOverTime(QString rotationAxis) {
   // Устанавливаем начальный угол
-  int startAngle = ui_->openGLWidget->RotZ;
+  GLfloat startAngle = 0.0f;  // Начальный угол всегда 0
 
   // Устанавливаем конечный угол (360 градусов)
-  int endAngle = startAngle + 360;
+  GLfloat endAngle = 360.0f;
 
   // Устанавливаем количество шагов (подбирайте под необходимую плавность
   // анимации)
   int numSteps = 100;
 
   // Вычисляем изменение угла на каждом шаге
-  int angleIncrement = (endAngle - startAngle) / numSteps;
+  GLfloat angleIncrement = (endAngle - startAngle) / numSteps;
+
+  // Определяем, по какой оси вращать
+  GLfloat* rotationPtr = nullptr;
+  if (rotationAxis == "RotX") {
+    rotationPtr = &ui_->openGLWidget->RotX;
+  } else if (rotationAxis == "RotY") {
+    rotationPtr = &ui_->openGLWidget->RotY;
+  } else if (rotationAxis == "RotZ") {
+    rotationPtr = &ui_->openGLWidget->RotZ;
+  }
 
   // Создаем таймер с интервалом для плавной анимации
   QTimer *timer = new QTimer(this);
   connect(timer, &QTimer::timeout, [=]() {
     // Увеличиваем угол на текущем шаге
-    ui_->openGLWidget->RotZ += angleIncrement;
+    *rotationPtr += angleIncrement;
 
     // Перерисовываем виджет
     ui_->openGLWidget->update();
 
     // Проверяем, достигли ли конечного угла
-    if (ui_->openGLWidget->RotZ >= endAngle) {
+    if (*rotationPtr >= endAngle) {
       // Останавливаем таймер
       timer->stop();
     }
@@ -259,6 +273,8 @@ void MainWindow::rotateModelOverTime() {
   int timerInterval = animationDuration / numSteps;
   timer->start(timerInterval);
 }
+
+
 
 void MainWindow::on_Background_color_clicked() {
   QColor color = QColorDialog::getColor(Qt::white, this, "Выберите цвет");

@@ -55,7 +55,8 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   void setOrthographicProjection();
   void setTypeViews();
   void PaintWireFrame();
-  void DrawVertex();
+  void TypeViewsModel();
+  void PaintShading();
   GLfloat calculateAspect();
   std::tuple<float, float, float> calculateModelDimensions() const;
 };

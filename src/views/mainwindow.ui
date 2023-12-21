@@ -1110,8 +1110,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>820</y>
+      <x>10</x>
+      <y>850</y>
       <width>631</width>
       <height>101</height>
      </rect>
@@ -1122,39 +1122,69 @@
        <item row="1" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_11">
          <item>
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="X_light_text">
            <property name="text">
             <string>X:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_4"/>
+          <widget class="QLineEdit" name="X_light_line">
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="Y_light_text">
            <property name="text">
             <string>Y:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_5"/>
+          <widget class="QLineEdit" name="Y_light_line">
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="Z_light_text">
            <property name="text">
             <string>Z:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_6"/>
+          <widget class="QLineEdit" name="Z_light_line">
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
        <item row="0" column="0">
-        <widget class="QLabel" name="visible_metod_3">
+        <widget class="QLabel" name="XYZ_light_text">
          <property name="text">
           <string>Положения источника света:</string>
          </property>
@@ -1166,7 +1196,7 @@
       </layout>
      </item>
      <item row="0" column="0">
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="Light_button">
        <property name="text">
         <string>Добавить освещение</string>
        </property>
@@ -1178,7 +1208,7 @@
      <item row="0" column="1">
       <layout class="QGridLayout" name="gridLayout_7">
        <item row="0" column="0">
-        <widget class="QLabel" name="visible_metod_2">
+        <widget class="QLabel" name="Color_light_text">
          <property name="text">
           <string>Цвет источника света:</string>
          </property>
@@ -1190,34 +1220,64 @@
        <item row="1" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="R_text">
            <property name="text">
             <string>R:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit"/>
+          <widget class="QLineEdit" name="R_line">
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="G_text">
            <property name="text">
             <string>G:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_2"/>
+          <widget class="QLineEdit" name="G_line">
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="B_text">
            <property name="text">
             <string>B:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_3"/>
+          <widget class="QLineEdit" name="B_line">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
