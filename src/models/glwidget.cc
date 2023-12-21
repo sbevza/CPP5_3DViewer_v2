@@ -172,7 +172,7 @@ void glWidget::TypeViewsModel() {
 
 void glWidget::PaintWireFrame() {
   glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
-  glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
+  glDrawElements(GL_LINES, data.faces.size(), GL_UNSIGNED_INT, data.faces.data());
   SetEDGEType();
 }
 
@@ -185,14 +185,52 @@ void glWidget::PaintShading() {
   setTypeViews();
   glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
   glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
-  glVertexPointer(3, GL_DOUBLE, 0,
-                  data.vertices.data()); //теневой и текстурный рисунок
-  glNormalPointer(GL_DOUBLE, 0,
-                  data.vertexNormal.data()); //теневой и текстурный рисунок
-  glTexCoordPointer(2, GL_DOUBLE, 0,
-                    data.vertexTexture.data()); //текстурный рисунок
-  glDrawElements(GL_TRIANGLES, data.numFaceNumVerts, GL_UNSIGNED_INT,
-                 data.vnIdx.data()); // теневой и текстурный рисунок
+
+  // Массив вершин
+  std::vector<float> vertices = {
+      0.0, 1.0, 0.0,    // Вершина пирамиды
+      -1.0, 0.0, -1.0,  // Нижняя левая вершина основания
+      1.0, 0.0, -1.0,   // Нижняя правая вершина основания
+      1.0, 0.0, 1.0,    // Верхняя правая вершина основания
+      -1.0, 0.0, 1.0    // Верхняя левая вершина основания
+  };
+
+// Массив текстурных координат
+  std::vector<float> vertexTexture = {
+      0.5, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 0.0,
+      0.0, 0.0
+  };
+
+// Массив нормалей
+  std::vector<float> vertexNormal = {
+      0.0, 1.0, 0.0,
+      -1.0, 0.0, 0.0,
+      1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0,
+      0.0, 0.0, -1.0
+  };
+
+// Индексный массив
+  std::vector<unsigned int> faces = {
+      0, 1, 2,
+      0, 2, 3,
+      0, 3, 4,
+      0, 4, 1
+  };
+
+  glVertexPointer(3, GL_FLOAT, 0,
+                  vertices.data()); //теневой и текстурный рисунок
+  glNormalPointer(GL_FLOAT, 0,
+                  vertexNormal.data()); //теневой и текстурный рисунок
+  glTexCoordPointer(2, GL_FLOAT, 0,
+                    vertexTexture.data()); //текстурный рисунок
+  glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT,
+                 faces.data()); // теневой и текстурный рисунок
+
+
   glDisable(GL_TEXTURE_2D); //текстурный рисунок
   glDisableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
   glDisable(GL_LIGHTING); //теневой и текстурный рисунок
