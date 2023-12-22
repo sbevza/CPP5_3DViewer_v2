@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
-    : QMainWindow(parent), ui_(new Ui::MainWindow),
-      settings_("School_21", "3D_Viewer_2.0"), controller_(controller) {
+    : QMainWindow(parent),
+      ui_(new Ui::MainWindow),
+      settings_("School_21", "3D_Viewer_2.0"),
+      controller_(controller) {
   ui_->setupUi(this);
 
   QIcon icon(":/icon.png");
@@ -12,6 +14,8 @@ MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
   LoadSettings();
   initChangeBoxes();
   initSliders();
+  ui_->ClearTexture_button->setEnabled(false);
+
   statusBar()->showMessage("Для начала откройте файл модели!");
 }
 
@@ -106,10 +110,8 @@ void MainWindow::on_ScreenShot_clicked() {
     }
   }
 }
-
 void MainWindow::on_Gif_clicked() {
   if (ui_->statusbar->currentMessage() != "Для начала откройте файл модели!") {
-
     s21::SaveGifCommand saveGif;
     ui_->statusbar->showMessage("укажите папку для сохранения Gif");
     QString filePath = commandInvoker_.runCommand(&saveGif);
@@ -117,16 +119,20 @@ void MainWindow::on_Gif_clicked() {
     if (!filePath.isEmpty()) {
       s21::MediaMaker mediaMaker;
       mediaMaker.SetMedia(makeGif, ui_);
-      // mediaMaker.MakeMedia(filePath);
 
       if (ui_->TypeGif_box->currentIndex() == 1) {
-        rotateModelOverTime();
-        mediaMaker.MakeMedia(filePath);
+        rotateModelOverTime("RotX");
+        // mediaMaker.MakeMedia(filePath);
       }
       if (ui_->TypeGif_box->currentIndex() == 2) {
+        rotateModelOverTime("RotY");
+        // mediaMaker.MakeMedia(filePath);
       }
-      if (ui_->TypeGif_box->currentIndex() == 2) {
+      if (ui_->TypeGif_box->currentIndex() == 3) {
+        rotateModelOverTime("RotZ");
+        // mediaMaker.MakeMedia(filePath);
       }
+      mediaMaker.MakeMedia(filePath);
     }
   }
 }
@@ -224,39 +230,37 @@ void MainWindow::on_color_edge_clicked() {
   }
 }
 
-void MainWindow::rotateModelOverTime() {
-  // Устанавливаем начальный угол
-  int startAngle = ui_->openGLWidget->RotZ;
-
-  // Устанавливаем конечный угол (360 градусов)
-  int endAngle = startAngle + 360;
-
-  // Устанавливаем количество шагов (подбирайте под необходимую плавность
-  // анимации)
-  int numSteps = 100;
-
-  // Вычисляем изменение угла на каждом шаге
-  int angleIncrement = (endAngle - startAngle) / numSteps;
+void MainWindow::rotateModelOverTime(QString rotationAxis) {
+  // Определяем, по какой оси вращать
+  GLfloat *rotationPtr = nullptr;
+  if (rotationAxis == "RotX") {
+    rotationPtr = &ui_->openGLWidget->RotX;
+  } else if (rotationAxis == "RotY") {
+    rotationPtr = &ui_->openGLWidget->RotY;
+  } else if (rotationAxis == "RotZ") {
+    rotationPtr = &ui_->openGLWidget->RotZ;
+  }
+  GLfloat startAngle = *rotationPtr;
+  // Вычисляем интервал таймера (16 миллисекунд)
+  int timerInterval = 16;
 
   // Создаем таймер с интервалом для плавной анимации
   QTimer *timer = new QTimer(this);
   connect(timer, &QTimer::timeout, [=]() {
-    // Увеличиваем угол на текущем шаге
-    ui_->openGLWidget->RotZ += angleIncrement;
+    // Увеличиваем угол на 1 градус
+    *rotationPtr += 1.0;
 
     // Перерисовываем виджет
     ui_->openGLWidget->update();
 
     // Проверяем, достигли ли конечного угла
-    if (ui_->openGLWidget->RotZ >= endAngle) {
+    if (*rotationPtr == (startAngle + 360.0f)) {
       // Останавливаем таймер
       timer->stop();
     }
   });
 
-  // Запускаем таймер с интервалом для достижения плавности анимации
-  int animationDuration = 5000; // 5 секунд
-  int timerInterval = animationDuration / numSteps;
+  // Запускаем таймер с интервалом
   timer->start(timerInterval);
 }
 
@@ -267,4 +271,33 @@ void MainWindow::on_Background_color_clicked() {
     ui_->openGLWidget->BGColor = color;
     SaveSettings();
   }
+}
+
+void MainWindow::on_pushButton_clicked() {
+  ui_->openGLWidget->SetCenterModel();
+}
+
+void MainWindow::on_LoadTexture_button_clicked() {
+  s21::OpenBMPCommand openTexture;
+  QString bmpFilePath = commandInvoker_.runCommand(&openTexture);
+
+  if (!bmpFilePath.isEmpty()) {
+    ui_->openGLWidget->texture_.load(bmpFilePath);
+    if (ui_->openGLWidget->texture_.width() <= 1024 &&
+        ui_->openGLWidget->texture_.height() <= 1024 &&
+        ui_->openGLWidget->texture_.width() ==
+            ui_->openGLWidget->texture_.height()) {
+      ui_->statusbar->showMessage("Текстура загружена успешно!");
+      ui_->openGLWidget->update();
+      ui_->ClearTexture_button->setEnabled(true);
+    } else {
+      ui_->statusbar->showMessage("Ошибка загрузки текстуры");
+    }
+  }
+}
+
+void MainWindow::on_ClearTexture_button_clicked() {
+  ui_->openGLWidget->texture_ = QImage();
+  ui_->openGLWidget->update();
+  ui_->ClearTexture_button->setEnabled(false);
 }

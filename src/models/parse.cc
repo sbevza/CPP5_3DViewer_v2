@@ -63,6 +63,7 @@ void Parser::attribInit() {
   attrib_->maxY = -FLT_MAX;
   attrib_->minZ = FLT_MAX;
   attrib_->maxZ = -FLT_MAX;
+  uniqueFace_.clear();
 }
 
 std::vector<char> Parser::getFileData() {
@@ -363,8 +364,6 @@ void Parser::processFace(const Command &command, size_t &f_count,
           result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
       if (result.second) {
         f_count += 2;
-//        attrib_->faces[f_count++] = previous_v_idx;
-//        attrib_->faces[f_count++] = v_idx;
       }
       previous_v_idx = v_idx;
     }
@@ -375,8 +374,6 @@ void Parser::processFace(const Command &command, size_t &f_count,
     auto result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
     if (result.second) {
       f_count += 2;
-//    attrib_->faces[f_count++] = previous_v_idx;
-//    attrib_->faces[f_count++] = v_idx;
     }
 
   }

@@ -33,11 +33,18 @@ class MainWindow : public QMainWindow {
   void on_Vertex_color_clicked();
   void on_color_edge_clicked();
 
+  void on_pushButton_clicked();
+
+  void on_LoadTexture_button_clicked();
+
+  void on_ClearTexture_button_clicked();
+
  private:
   Ui::MainWindow* ui_;
   QSettings settings_;
   s21::Controller* controller_;
   s21::CommandInvoker commandInvoker_;
+
 
   void SaveSettings();
   void LoadSettings();
@@ -48,7 +55,7 @@ class MainWindow : public QMainWindow {
                   std::function<void(int)> updateFunc);
   static void resetComboBox(QComboBox* box, int index);
   static void resetSlider(QSlider* slider, int value);
-  void rotateModelOverTime();
+  void rotateModelOverTime(QString rotationAxis);
 };
 
 #endif  // CPP4_3DVIEWER_V2_0_SRC_VIEWS_MAINWINDOW_H_
