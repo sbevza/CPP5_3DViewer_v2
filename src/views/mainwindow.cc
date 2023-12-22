@@ -110,6 +110,7 @@ void MainWindow::on_ScreenShot_clicked() {
     }
   }
 }
+
 void MainWindow::on_Gif_clicked() {
   if (ui_->statusbar->currentMessage() != "Для начала откройте файл модели!") {
     s21::SaveGifCommand saveGif;
@@ -301,3 +302,14 @@ void MainWindow::on_ClearTexture_button_clicked() {
   ui_->openGLWidget->update();
   ui_->ClearTexture_button->setEnabled(false);
 }
+
+void MainWindow::on_SaveUV_buttonn_clicked()
+{
+  s21::SaveBMPCommand saveUV;
+  QString bmpFilePath = commandInvoker_.runCommand(&saveUV);
+      s21::MediaMaker mediaMaker;
+      mediaMaker.SetMedia(makeUV, ui_);
+      mediaMaker.MakeMedia(bmpFilePath);
+
+}
+

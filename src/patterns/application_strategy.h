@@ -4,7 +4,7 @@
 #include "../views/gif.h"
 #include "views/mainwindow.h"
 
-enum strategy { makeImage = 0, makeGif };
+enum strategy { makeImage = 0, makeGif, makeUV };
 
 namespace s21 {
 
@@ -33,6 +33,17 @@ class StrategyGif : public Strategy {
  private:
   Ui::MainWindow *ui_;
 };
+
+class StrategyUV : public Strategy {
+ public:
+  StrategyUV(Ui::MainWindow *ui) : ui_(ui) {}
+
+  void make(QString filename);
+
+ private:
+  Ui::MainWindow *ui_;
+};
+
 
 class MediaMaker {
  public:

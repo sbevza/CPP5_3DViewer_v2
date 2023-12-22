@@ -272,4 +272,32 @@ void glWidget::LoadTexture() {
                texture_.bits());
 }
 
+// void glWidget::SaveUvMap() {
+//   QImage tex = ui_->widget->GetTexture();
+//   QPainter painter(&tex);
+//   if (ui_->widget->GetEdgeType() == kDashed) {
+//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::DotLine));
+//   } else {
+//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::SolidLine));
+//   }
+//   std::vector<double> vec = controller_->GetWireTextureArray();
+//   std::vector<unsigned int> ind = controller_->GetTextureIndexArray();
+//   size_t size = ind.size();
+//   for (size_t i = 0; i < size; i += 2) {
+//     painter.drawLine(tex.width() * vec.at(2 * ind.at(i)),
+//                      tex.height() * vec.at(2 * ind.at(i) + 1),
+//                      tex.width() * vec.at(2 * ind.at(i + 1)),
+//                      tex.height() * vec.at(2 * ind.at(i + 1) + 1));
+//   }
+//   QStringList save_filename;
+//   filedialog_->setDefaultSuffix("bmp");
+//   filedialog_->setNameFilter("BMP (*.bmp)");
+//   if (filedialog_->exec()) {
+//     save_filename = filedialog_->selectedFiles();
+//   }
+//   if (!save_filename.isEmpty()) {
+//     tex.save(save_filename[0]);
+//   }
+// }
+
 } // namespace s21

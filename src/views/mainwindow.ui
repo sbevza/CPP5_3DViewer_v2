@@ -1046,7 +1046,7 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <widget class="QPushButton" name="pushButton_6">
+      <widget class="QPushButton" name="SaveUV_buttonn">
        <property name="text">
         <string>Создать UV развертку</string>
        </property>

@@ -16,6 +16,7 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
   int ProjectionType, LineType, EDGEType, ViewType = 0;
   float LineThick, EDGEThick, Scale;
+
   QImage texture_;
 
   QColor LineColor;

@@ -37,7 +37,13 @@ class SaveGifCommand : public PathCommand {
   QString execute() override;
 };
 
-// Инвокер
+// Команда для получения пути сохранения UVmap
+class SaveBMPCommand : public PathCommand {
+ public:
+  QString execute() override;
+};
+
+// вызыватель команд
 class CommandInvoker {
  public:
   QString runCommand(PathCommand* command);
