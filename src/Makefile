@@ -37,7 +37,7 @@ uninstall:
 
 dist:
 	mkdir 3dViewer_v2.1/
-	cp -a controllers models objs tests views Makefile main.cc readme.txt 3dViewer.pro 3dViewer_v2.1
+	cp -a controllers models objs tests views patterns Makefile main.cc readme.txt 3dViewer.pro 3dViewer_v2.1
 	tar cvzf 3dViewer_v2.1.tgz 3dViewer_v2.1/
 	rm -rf 3dViewer_v2.1/
 

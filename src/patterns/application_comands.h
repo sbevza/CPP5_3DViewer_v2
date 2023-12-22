@@ -19,6 +19,12 @@ class OpenCommand : public PathCommand {
   QString execute() override;
 };
 
+// Команда для открытия Текстур
+class OpenBMPCommand : public PathCommand {
+ public:
+  QString execute() override;
+};
+
 // Команда для получения пути сохранения скриншота
 class SaveScreenshotCommand : public PathCommand {
  public:

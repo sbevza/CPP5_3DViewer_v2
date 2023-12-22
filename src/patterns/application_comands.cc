@@ -7,6 +7,12 @@ QString OpenCommand::execute() {
                                       "Файлы моделей (*.obj)");
 }
 
+QString OpenBMPCommand::execute() {
+    return QFileDialog::getOpenFileName(nullptr, "Открыть изображение BMP", "",
+                                        "Файлы изображений BMP (*.bmp)");
+}
+
+
 QString SaveScreenshotCommand::execute() {
   QFileDialog dialog(nullptr, "Save Screenshot");
   dialog.setAcceptMode(QFileDialog::AcceptSave);
