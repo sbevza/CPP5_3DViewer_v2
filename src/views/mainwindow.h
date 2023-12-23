@@ -7,7 +7,6 @@
 #include <QPainter>
 #include <QSettings>
 
-
 #include "controllers/controller.h"
 #include "patterns/application_comands.h"
 #include "patterns/application_strategy.h"
@@ -35,6 +34,12 @@ class MainWindow : public QMainWindow {
   void on_color_edge_clicked();
 
   void on_pushButton_clicked();
+
+  void on_LoadTexture_button_clicked();
+
+  void on_ClearTexture_button_clicked();
+
+  void on_SaveUV_buttonn_clicked();
 
   private:
   Ui::MainWindow* ui_;

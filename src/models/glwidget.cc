@@ -18,6 +18,7 @@ void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
 void glWidget::paintGL() {
   if (data.vertices.data()) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    LoadTexture();
     ProjectionChange();
     glTranslatef(PosX, PosY, PosZ);
     glScalef(Scale, Scale, Scale);
@@ -263,4 +264,41 @@ void glWidget::SetCenterModel() {
   ProjectionChange();
   update();
 }
+
+void glWidget::LoadTexture() {
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, GLsizei(texture_.width()),
+               GLsizei(texture_.height()), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+               texture_.bits());
+}
+
+// void glWidget::SaveUvMap() {
+//   QImage tex = ui_->widget->GetTexture();
+//   QPainter painter(&tex);
+//   if (ui_->widget->GetEdgeType() == kDashed) {
+//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::DotLine));
+//   } else {
+//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::SolidLine));
+//   }
+//   std::vector<double> vec = controller_->GetWireTextureArray();
+//   std::vector<unsigned int> ind = controller_->GetTextureIndexArray();
+//   size_t size = ind.size();
+//   for (size_t i = 0; i < size; i += 2) {
+//     painter.drawLine(tex.width() * vec.at(2 * ind.at(i)),
+//                      tex.height() * vec.at(2 * ind.at(i) + 1),
+//                      tex.width() * vec.at(2 * ind.at(i + 1)),
+//                      tex.height() * vec.at(2 * ind.at(i + 1) + 1));
+//   }
+//   QStringList save_filename;
+//   filedialog_->setDefaultSuffix("bmp");
+//   filedialog_->setNameFilter("BMP (*.bmp)");
+//   if (filedialog_->exec()) {
+//     save_filename = filedialog_->selectedFiles();
+//   }
+//   if (!save_filename.isEmpty()) {
+//     tex.save(save_filename[0]);
+//   }
+// }
+
 } // namespace s21

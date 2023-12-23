@@ -1024,7 +1024,7 @@
      <item row="0" column="0">
       <layout class="QHBoxLayout" name="horizontalLayout_21">
        <item>
-        <widget class="QPushButton" name="pushButton_4">
+        <widget class="QPushButton" name="LoadTexture_button">
          <property name="text">
           <string>Загрузить техстуру</string>
          </property>
@@ -1034,7 +1034,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_5">
+        <widget class="QPushButton" name="ClearTexture_button">
          <property name="text">
           <string>Убрать техстуру</string>
          </property>
@@ -1046,7 +1046,7 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <widget class="QPushButton" name="pushButton_6">
+      <widget class="QPushButton" name="SaveUV_buttonn">
        <property name="text">
         <string>Создать UV развертку</string>
        </property>

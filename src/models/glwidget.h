@@ -17,6 +17,8 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   int ProjectionType, LineType, EDGEType, ViewType = 0;
   float LineThick, EDGEThick, Scale;
 
+  QImage texture_;
+
   QColor LineColor;
   QColor BGColor;
   QColor EDGEColor;
@@ -57,6 +59,7 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   void PaintWireFrame();
   void TypeViewsModel();
   void PaintShading();
+  void LoadTexture();
   GLfloat calculateAspect();
   std::tuple<float, float, float> calculateModelDimensions() const;
 };

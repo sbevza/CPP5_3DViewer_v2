@@ -63,6 +63,29 @@ void StrategyGif::make(QString filename) {
   }
 }
 
+void StrategyUV::make(QString filename) {
+  QImage tex = ui_->openGLWidget->texture_;
+  QPainter painter(&tex);
+  painter.setPen(QPen(ui_->openGLWidget->LineColor, 1, Qt::SolidLine));
+
+  // std::vector<float> vec = ui_->openGLWidget->vertexTexture;
+  // std::vector<unsigned int> ind = ui_->openGLWidget->faces;
+  // size_t size = ui_->openGLWidget->faces.size();
+  // for (size_t i = 0; i < size; i += 2) {
+  //   painter.drawLine(tex.width() * vec.at(2 * ind.at(i)),
+  //                    tex.height() * vec.at(2 * ind.at(i) + 1),
+  //                    tex.width() * vec.at(2 * ind.at(i + 1)),
+  //                    tex.height() * vec.at(2 * ind.at(i + 1) + 1));
+  // }
+
+  if (!filename.isEmpty()) {
+    tex.save(filename);
+        ui_->statusbar->showMessage("UV создана и лежит в папке:" + filename);
+
+  }
+}
+
+
 MediaMaker::~MediaMaker() { delete media_; }
 
 void MediaMaker::MakeMedia(QString filename) {
@@ -74,6 +97,8 @@ void MediaMaker::SetMedia(strategy strategyType, Ui::MainWindow* ui) {
     media_ = new StrategyImage(ui);
   } else if (strategyType == makeGif) {
     media_ = new StrategyGif(ui);
+  } else if (strategyType == makeUV) {
+    media_ = new StrategyUV(ui);
   }
 }
 
