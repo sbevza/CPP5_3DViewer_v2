@@ -5,8 +5,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <set>
+#include <vector>
 
 namespace s21 {
 
@@ -87,10 +87,14 @@ class Parser {
   void processFace(const Command &command, size_t &f_count, size_t v_count);
   void processTexture(const Command &command);
   void processNormal(const Command &command);
-  static void parseVertexCommand(Command &command, const std::string &line, size_t &pos, int &res);
-  static void parseTextureCommand(Command &command, const std::string &line, size_t &pos, int &res);
-  static void parseNormalCommand(Command &command, const std::string &line, size_t &pos, int &res);
-  void parseFaceCommand(Command &command, const std::string &line, size_t &pos, int &res);
+  static void parseVertexCommand(Command &command, const std::string &line,
+                                 size_t &pos, int &res);
+  static void parseTextureCommand(Command &command, const std::string &line,
+                                  size_t &pos, int &res);
+  static void parseNormalCommand(Command &command, const std::string &line,
+                                 size_t &pos, int &res);
+  void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
+                        int &res);
 };
 }  // namespace s21
 

@@ -41,12 +41,11 @@ class MainWindow : public QMainWindow {
 
   void on_SaveUV_buttonn_clicked();
 
-  private:
+ private:
   Ui::MainWindow* ui_;
   QSettings settings_;
   s21::Controller* controller_;
   s21::CommandInvoker commandInvoker_;
-
 
   void SaveSettings();
   void LoadSettings();

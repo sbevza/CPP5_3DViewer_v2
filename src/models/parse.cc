@@ -84,12 +84,11 @@ std::vector<char> Parser::getFileData() {
   }
 
   return buffer;
-
 }
 
 int Parser::isLineEnding(std::vector<char> &ch, size_t i, size_t end_i) {
   return (ch[i] == '\0') || (ch[i] == '\n') ||
-      ((ch[i] == '\r') && (((i + 1) < end_i) && (ch[i + 1] != '\n')));
+         ((ch[i] == '\r') && (((i + 1) < end_i) && (ch[i + 1] != '\n')));
 }
 
 size_t Parser::getLineInfos(std::vector<char> &buf,
@@ -159,7 +158,8 @@ VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
     size_t secondSlash = subStr.find_first_of('/', firstSlash + 1);
     if (secondSlash != std::string::npos) {
       if (secondSlash != firstSlash + 1) {
-        vi.vtIdx = std::stoi(subStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
+        vi.vtIdx = std::stoi(
+            subStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
       }
       if (secondSlash + 1 < subStr.size()) {
         vi.vnIdx = std::stoi(subStr.substr(secondSlash + 1));
@@ -188,17 +188,21 @@ void Parser::parseLine(Command &command, const std::string &line, int &res) {
 
     if (line.compare(pos, 2, "v ") == 0 || line.compare(pos, 2, "v\t") == 0) {
       parseVertexCommand(command, line, pos, res);
-    } else if (line.compare(pos, 3, "vt ") == 0 || line.compare(pos, 3, "vt\t") == 0) {
+    } else if (line.compare(pos, 3, "vt ") == 0 ||
+               line.compare(pos, 3, "vt\t") == 0) {
       parseTextureCommand(command, line, pos, res);
-    } else if (line.compare(pos, 3, "vn ") == 0 || line.compare(pos, 3, "vn\t") == 0) {
+    } else if (line.compare(pos, 3, "vn ") == 0 ||
+               line.compare(pos, 3, "vn\t") == 0) {
       parseNormalCommand(command, line, pos, res);
-    } else if (line.compare(pos, 2, "f ") == 0 || line.compare(pos, 2, "f\t") == 0) {
+    } else if (line.compare(pos, 2, "f ") == 0 ||
+               line.compare(pos, 2, "f\t") == 0) {
       parseFaceCommand(command, line, pos, res);
     }
   }
 }
 
-void Parser::parseVertexCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+void Parser::parseVertexCommand(Command &command, const std::string &line,
+                                size_t &pos, int &res) {
   pos += 2;
   command.vx = parseDouble(line, pos);
   command.vy = parseDouble(line, pos);
@@ -207,7 +211,8 @@ void Parser::parseVertexCommand(Command &command, const std::string &line, size_
   res = 1;
 }
 
-void Parser::parseTextureCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+void Parser::parseTextureCommand(Command &command, const std::string &line,
+                                 size_t &pos, int &res) {
   pos += 3;
   command.vtU = parseDouble(line, pos);
   command.vtV = parseDouble(line, pos);
@@ -215,7 +220,8 @@ void Parser::parseTextureCommand(Command &command, const std::string &line, size
   res = 1;
 }
 
-void Parser::parseNormalCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+void Parser::parseNormalCommand(Command &command, const std::string &line,
+                                size_t &pos, int &res) {
   pos += 3;
   command.vnX = parseDouble(line, pos);
   command.vnY = parseDouble(line, pos);
@@ -224,7 +230,8 @@ void Parser::parseNormalCommand(Command &command, const std::string &line, size_
   res = 1;
 }
 
-void Parser::parseFaceCommand(Command &command, const std::string &line, size_t &pos, int &res) {
+void Parser::parseFaceCommand(Command &command, const std::string &line,
+                              size_t &pos, int &res) {
   pos += 2;
   skipSpace(line, pos);
 
@@ -267,7 +274,7 @@ void Parser::setAttrib(size_t num_v, size_t num_f, size_t num_faces) {
     attrib_->numFaces = static_cast<unsigned int>(num_f);
     attrib_->numFaceNumVerts = static_cast<unsigned int>(num_faces);
     attrib_->vertices = std::vector<float>(num_v * 3);
-//    attrib_->faces = std::vector<unsigned int>(num_f * 2);
+    //    attrib_->faces = std::vector<unsigned int>(num_f * 2);
   } else {
     err_ = true;
   }
@@ -307,7 +314,7 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
   attrib_->maxY = maxY - centerY;
   attrib_->minZ = minZ - centerZ;
   attrib_->maxZ = maxZ - centerZ;
-  for (const auto& face : uniqueFace_) {
+  for (const auto &face : uniqueFace_) {
     attrib_->faces.push_back(face.first);
     attrib_->faces.push_back(face.second);
   }
@@ -360,8 +367,8 @@ void Parser::processFace(const Command &command, size_t &f_count,
       attrib_->vnIdx[previous_v_idx] = fixIndex(command.vnIdx[k - 1], v_count);
       attrib_->vtIdx[previous_v_idx] = fixIndex(command.vtIdx[k - 1], v_count);
       size_t v_idx = fixIndex(command.f[k], v_count);
-      auto
-          result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
+      auto result = uniqueFace_.insert(std::make_pair(
+          std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
       if (result.second) {
         f_count += 2;
       }
@@ -371,11 +378,11 @@ void Parser::processFace(const Command &command, size_t &f_count,
     attrib_->vtIdx[previous_v_idx] = fixIndex(command.vtIdx[k - 1], v_count);
     // Замыкание грани
     size_t v_idx = fixIndex(command.f[0], v_count);
-    auto result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
+    auto result = uniqueFace_.insert(std::make_pair(
+        std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
     if (result.second) {
       f_count += 2;
     }
-
   }
 }
 

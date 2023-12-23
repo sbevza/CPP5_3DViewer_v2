@@ -10,44 +10,37 @@
 
 namespace s21 {
 
-class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
- public:
-  explicit glWidget(QWidget *parent = nullptr);
-
-  int ProjectionType, LineType, EDGEType, ViewType = 0;
-  float LineThick, EDGEThick, Scale;
-
+struct WidgetData {
   QImage texture_;
-
   QColor LineColor;
-  QColor BGColor;
   QColor EDGEColor;
   QColor LightColor;
 
-  float position_light[3];
+  GLfloat PosX;
+  GLfloat PosY;
+  GLfloat PosZ;
 
-  GLfloat PosX;  // Позиция модели по оси X
-  GLfloat PosY;  // Позиция модели по оси Y
-  GLfloat PosZ;  // Позиция модели по оси Z
-
-  GLfloat RotX;  // Поле для хранения значения вращения по оси X
+  GLfloat RotX;
   GLfloat RotY;
   GLfloat RotZ;
 
-  s21::Attrib data = {0, 0, 0, 0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}};
-
-  void SetBGColor();
-  void SetCenterModel();
-  void ButtonLightAllFunc();
-  void setLight();
-
- public slots:
-  void SetScaleFromSlider(int sliderValue);
-
- private:
   QPoint mPos_;
   QTimer tmr_;
   QColor prevBGColor_;
+  QColor BGColor_;
+
+  int ProjectionType, LineType, EDGEType, ViewType = 0;
+  float LineThick, EDGEThick, Scale;
+  float position_light[3];
+};
+
+class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+
+private:
+  WidgetData widgetdata;
+
+  void LoadBGColor();
+  void SetScale();
 
   void mousePressEvent(QMouseEvent *) override;
   void mouseMoveEvent(QMouseEvent *) override;
@@ -65,9 +58,30 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   void TypeViewsModel();
   void PaintShading();
   void LoadTexture();
+  void rotateModel();
+
   GLfloat calculateAspect();
   std::tuple<float, float, float> calculateModelDimensions() const;
-};
-}  // namespace s21
 
-#endif  // CPP4_3DVIEWER_V2_0_SRC_MODELS_GLWIDGET_H_
+public:
+  explicit glWidget(QWidget *parent = nullptr);
+
+  // Универсальный геттер
+  template <typename T> const T &getMember(T WidgetData::*member) const {
+    return widgetdata.*member;
+  }
+
+  // Универсальный сеттер
+  template <typename T> void setMember(T WidgetData::*member, const T &value) {
+    widgetdata.*member = value;
+  }
+
+  s21::Attrib data = {0, 0, 0, 0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}};
+
+  void SetCenterModel();
+  void ButtonLightAllFunc();
+  void setLight();
+};
+} // namespace s21
+
+#endif // CPP4_3DVIEWER_V2_0_SRC_MODELS_GLWIDGET_H_

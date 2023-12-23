@@ -2,7 +2,7 @@
 
 namespace s21 {
 
-glWidget::glWidget(QWidget *parent) : QOpenGLWidget(parent), Scale(1.0f) {
+glWidget::glWidget(QWidget *parent) : QOpenGLWidget(parent) {
   setMouseTracking(true);
 }
 
@@ -10,7 +10,7 @@ void glWidget::initializeGL() {
   initializeOpenGLFunctions();
   glEnable(GL_DEPTH_TEST);
   glEnableClientState(GL_VERTEX_ARRAY);
-  SetBGColor();
+  LoadBGColor();
 }
 
 void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -18,58 +18,67 @@ void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
 void glWidget::paintGL() {
   if (data.vertices.data()) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    LoadTexture();
     ProjectionChange();
-    glTranslatef(PosX, PosY, PosZ);
-    glScalef(Scale, Scale, Scale);
-    glRotatef(RotX, 1.0f, 0.0f, 0.0f);
-    glRotatef(RotY, 0.0f, 1.0f, 0.0f);
-    glRotatef(RotZ, 0.0f, 0.0f, 1.0f);
-    SetBGColor();
+    glTranslatef(widgetdata.PosX, widgetdata.PosY, widgetdata.PosZ);
+    SetScale();
+    rotateModel();
+    LoadBGColor();
     SetTypeLine();
     setTypeViews();
-    glColor3f(LineColor.redF(), LineColor.greenF(), LineColor.blueF());
+    glColor3f(widgetdata.LineColor.redF(), widgetdata.LineColor.greenF(),
+              widgetdata.LineColor.blueF());
     TypeViewsModel();
   } else
-    SetBGColor();
+    LoadBGColor();
 }
 
-void glWidget::mousePressEvent(QMouseEvent *ma) { mPos_ = ma->pos(); }
+void glWidget::rotateModel() {
+  glRotatef(widgetdata.RotX, 1.0f, 0.0f, 0.0f);
+  glRotatef(widgetdata.RotY, 0.0f, 1.0f, 0.0f);
+  glRotatef(widgetdata.RotZ, 0.0f, 0.0f, 1.0f);
+}
+
+void glWidget::mousePressEvent(QMouseEvent *ma) {
+  widgetdata.mPos_ = ma->pos();
+}
 
 void glWidget::mouseMoveEvent(QMouseEvent *ma) {
   if (ma->buttons() & Qt::RightButton) {
-    GLfloat dx = static_cast<GLfloat>(ma->pos().x() - mPos_.x());
-    GLfloat dy = static_cast<GLfloat>(ma->pos().y() - mPos_.y());
+    GLfloat dx = static_cast<GLfloat>(ma->pos().x() - widgetdata.mPos_.x());
+    GLfloat dy = static_cast<GLfloat>(ma->pos().y() - widgetdata.mPos_.y());
 
-    PosX += dx / 10;
-    PosY -= dy / 10;
-    mPos_ = ma->pos();
+    widgetdata.PosX += dx / 10;
+    widgetdata.PosY -= dy / 10;
+    widgetdata.mPos_ = ma->pos();
     update();
   } else if (ma->buttons() & Qt::LeftButton) {
-    RotX = 1 / M_PI * (ma->pos().y() - mPos_.y());
-    RotY = 1 / M_PI * (ma->pos().x() - mPos_.x());
+    GLfloat dx = static_cast<GLfloat>(ma->pos().x() - widgetdata.mPos_.x());
+    GLfloat dy = static_cast<GLfloat>(ma->pos().y() - widgetdata.mPos_.y());
+
+    widgetdata.RotX += 1 / M_PI * dy;
+    widgetdata.RotY += 1 / M_PI * dx;
+
+    widgetdata.mPos_ = ma->pos();
     update();
   }
 }
 
 void glWidget::wheelEvent(QWheelEvent *event) {
   int delta = event->angleDelta().y();
-
+  if (widgetdata.Scale == 0) widgetdata.Scale = 1;
   if (delta > 0)
-    Scale *= 1.1;
+    widgetdata.Scale *= 1.1;
   else if (delta < 0)
-    Scale /= 1.1;
-
-  update();
+    widgetdata.Scale /= 1.1;
 }
 
 void glWidget::ProjectionChange() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  if (ProjectionType == 0) {
+  if (widgetdata.ProjectionType == 0) {
     setPerspectiveProjection();
-  } else if (ProjectionType == 1) {
+  } else if (widgetdata.ProjectionType == 1) {
     setOrthographicProjection();
   }
 }
@@ -113,138 +122,129 @@ std::tuple<float, float, float> glWidget::calculateModelDimensions() const {
 }
 
 void glWidget::SetTypeLine() {
-  if (LineType == 1) {
+  if (widgetdata.LineType == 1) {
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0xF0F0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth(LineThick);
+    glLineWidth(widgetdata.LineThick);
   } else {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glLineWidth(LineThick);
+    glLineWidth(widgetdata.LineThick);
   }
 }
 
 void glWidget::SetEDGEType() {
-  glPointSize(EDGEThick * 1.5);
+  glPointSize(widgetdata.EDGEThick * 1.5);
 
-  if (EDGEType) {
-    if (EDGEType == 1)
-      glEnable(GL_POINT_SMOOTH);
-    if (EDGEType == 2)
-      glDisable(GL_POINT_SMOOTH);
-    glColor3f(EDGEColor.redF(), EDGEColor.greenF(), EDGEColor.blueF());
+  if (widgetdata.EDGEType) {
+    if (widgetdata.EDGEType == 1) glEnable(GL_POINT_SMOOTH);
+    if (widgetdata.EDGEType == 2) glDisable(GL_POINT_SMOOTH);
+    glColor3f(widgetdata.EDGEColor.redF(), widgetdata.EDGEColor.greenF(),
+              widgetdata.EDGEColor.blueF());
     glDrawElements(GL_POINTS, data.numFaces, GL_UNSIGNED_INT,
                    data.faces.data());
   }
 }
 
-void glWidget::SetBGColor() {
-  // Проверяем, изменились ли значения цвета фона
-  if (BGColor != prevBGColor_) {
-    glClearColor(BGColor.redF(), BGColor.greenF(), BGColor.blueF(),
-                 BGColor.alphaF());
-    prevBGColor_ = BGColor;
+void glWidget::LoadBGColor() {
+  if (widgetdata.BGColor_ != widgetdata.prevBGColor_) {
+    glClearColor(widgetdata.BGColor_.redF(), widgetdata.BGColor_.greenF(),
+                 widgetdata.BGColor_.blueF(), widgetdata.BGColor_.alphaF());
+    widgetdata.prevBGColor_ = widgetdata.BGColor_;
     update();
   }
 }
 
-void glWidget::SetScaleFromSlider(int sliderValue) {
-  // Нормализация значения слайдера в диапазоне от -10 до 10
-  float normalizedValue = static_cast<float>(sliderValue + 10) / 20.0f;
-  Scale = 0.5f + normalizedValue * 1.5f;
+void glWidget::SetScale() {
+  float baseScale = 1;
+
+  if (widgetdata.Scale > 0) {
+    baseScale *= widgetdata.Scale * 1.1;
+  } else if (widgetdata.Scale < 0) {
+    baseScale = 1 / (widgetdata.Scale * -1.1);
+  }
+  glScalef(baseScale, baseScale, baseScale);
+
   update();
 }
 
 void glWidget::setTypeViews() {
-  if (ViewType == 1) {
+  if (widgetdata.ViewType == 1) {
     glShadeModel(GL_FLAT);
   }
-  if (ViewType == 2) {
+  if (widgetdata.ViewType == 2) {
     glShadeModel(GL_SMOOTH);
   }
 }
 
 void glWidget::TypeViewsModel() {
-  if (ViewType == 0) {
+  if (widgetdata.ViewType == 0) {
     PaintWireFrame();
   } else
     PaintShading();
 }
 
 void glWidget::PaintWireFrame() {
-  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
+  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());  //каркасный рисунок
   glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
   SetEDGEType();
 }
 
 void glWidget::PaintShading() {
-  glEnable(GL_LIGHTING); //теневой и текстурный рисунок
-  glEnable(GL_LIGHT0);   //теневой и текстурный рисунок
-  glEnable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
-  glEnable(GL_NORMALIZE); //теневой и текстурный рисунок
-  glEnable(GL_TEXTURE_2D); //текстурный рисунок
+  glEnable(GL_LIGHTING);  //теневой и текстурный рисунок
+  glEnable(GL_LIGHT0);  //теневой и текстурный рисунок
+  glEnable(GL_COLOR_MATERIAL);  //теневой и текстурный рисунок
+  glEnable(GL_NORMALIZE);  //теневой и текстурный рисунок
+  glEnable(GL_TEXTURE_2D);  //текстурный рисунок
   setTypeViews();
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
-  glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
+  LoadTexture();
+
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);  //текстурный рисунок
+  glEnableClientState(GL_NORMAL_ARRAY);  //теневой и текстурный рисунок
 
   // Массив вершин
   std::vector<float> vertices = {
-      0.0, 1.0, 0.0,    // Вершина пирамиды
+      0.0,  1.0, 0.0,  // Вершина пирамиды
       -1.0, 0.0, -1.0,  // Нижняя левая вершина основания
-      1.0, 0.0, -1.0,   // Нижняя правая вершина основания
-      1.0, 0.0, 1.0,    // Верхняя правая вершина основания
-      -1.0, 0.0, 1.0    // Верхняя левая вершина основания
+      1.0,  0.0, -1.0,  // Нижняя правая вершина основания
+      1.0,  0.0, 1.0,  // Верхняя правая вершина основания
+      -1.0, 0.0, 1.0  // Верхняя левая вершина основания
   };
 
-// Массив текстурных координат
-  std::vector<float> vertexTexture = {
-      0.5, 1.0,
-      0.0, 0.0,
-      1.0, 0.0,
-      1.0, 0.0,
-      0.0, 0.0
-  };
+  // Массив текстурных координат
+  std::vector<float> vertexTexture = {0.5, 1.0, 0.0, 0.0, 1.0,
+                                      0.0, 1.0, 0.0, 0.0, 0.0};
 
-// Массив нормалей
-  std::vector<float> vertexNormal = {
-      0.0, 1.0, 0.0,
-      -1.0, 0.0, 0.0,
-      1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0,
-      0.0, 0.0, -1.0
-  };
+  // Массив нормалей
+  std::vector<float> vertexNormal = {0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0,
+                                     0.0, 0.0, 0.0, 1.0,  0.0, 0.0, -1.0};
 
-// Индексный массив
-  std::vector<unsigned int> faces = {
-      0, 1, 2,
-      0, 2, 3,
-      0, 3, 4,
-      0, 4, 1
-  };
+  // Индексный массив
+  std::vector<unsigned int> faces = {0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1};
 
   glVertexPointer(3, GL_FLOAT, 0,
-                  vertices.data()); //теневой и текстурный рисунок
+                  vertices.data());  //теневой и текстурный рисунок
   glNormalPointer(GL_FLOAT, 0,
-                  vertexNormal.data()); //теневой и текстурный рисунок
+                  vertexNormal.data());  //теневой и текстурный рисунок
   glTexCoordPointer(2, GL_FLOAT, 0,
-                    vertexTexture.data()); //текстурный рисунок
+                    vertexTexture.data());  //текстурный рисунок
   glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT,
-                 faces.data()); // теневой и текстурный рисунок
+                 faces.data());  // теневой и текстурный рисунок
 
-  glDisable(GL_TEXTURE_2D); //текстурный рисунок
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
-  glDisable(GL_LIGHTING); //теневой и текстурный рисунок
-  glDisable(GL_LIGHT0); //теневой и текстурный рисунок
-  glDisable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
-  glDisable(GL_NORMALIZE); //теневой и текстурный рисунок
-  glDisableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
+  glDisable(GL_TEXTURE_2D);  //текстурный рисунок
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);  //текстурный рисунок
+  glDisable(GL_LIGHTING);  //теневой и текстурный рисунок
+  glDisable(GL_LIGHT0);  //теневой и текстурный рисунок
+  glDisable(GL_COLOR_MATERIAL);  //теневой и текстурный рисунок
+  glDisable(GL_NORMALIZE);  //теневой и текстурный рисунок
+  glDisableClientState(GL_NORMAL_ARRAY);  //теневой и текстурный рисунок
 }
 
 void glWidget::SetCenterModel() {
-  Scale = 1.0f;
-  RotX = 0;
-  RotY = 0;
-  RotZ = 0;
+  widgetdata.Scale = 1.0f;
+  widgetdata.RotX = 0;
+  widgetdata.RotY = 0;
+  widgetdata.RotZ = 0;
 
   // Вычисляем размер модели по X и Y
   float modelWidth = data.maxX - data.minX;
@@ -254,9 +254,9 @@ void glWidget::SetCenterModel() {
   // чтобы уместить модель по X и Y
   float zOffset = modelWidth + modelHeight;
 
-  PosX = 0;
-  PosY = 0;
-  PosZ = -zOffset;
+  widgetdata.PosX = 0;
+  widgetdata.PosY = 0;
+  widgetdata.PosZ = -zOffset;
 
   glRotatef(90, 1.0f, 0.0f, 0.0f);
 
@@ -267,9 +267,9 @@ void glWidget::SetCenterModel() {
 void glWidget::LoadTexture() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, GLsizei(texture_.width()),
-               GLsizei(texture_.height()), 0, GL_RGBA, GL_UNSIGNED_BYTE,
-               texture_.bits());
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, GLsizei(widgetdata.texture_.width()),
+               GLsizei(widgetdata.texture_.height()), 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, widgetdata.texture_.bits());
 }
 
 void glWidget::ButtonLightAllFunc() {
@@ -283,12 +283,11 @@ void glWidget::ButtonLightAllFunc() {
 }
 
 void glWidget::setLight() {
-
-    float ambient_light[3];
-    LightColor.getRgbF(&ambient_light[0], &ambient_light[1],
-                         &ambient_light[2]);
-    glLightfv(GL_LIGHT0, GL_POSITION, position_light);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient_light);
+  float ambient_light[3];
+  widgetdata.LightColor.getRgbF(&ambient_light[0], &ambient_light[1],
+                                &ambient_light[2]);
+  glLightfv(GL_LIGHT0, GL_POSITION, widgetdata.position_light);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, ambient_light);
 }
 
-} // namespace s21
+}  // namespace s21
