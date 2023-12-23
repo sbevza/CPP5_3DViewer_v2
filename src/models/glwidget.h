@@ -22,6 +22,9 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
   QColor LineColor;
   QColor BGColor;
   QColor EDGEColor;
+  QColor LightColor;
+
+  float position_light[3];
 
   GLfloat PosX;  // Позиция модели по оси X
   GLfloat PosY;  // Позиция модели по оси Y
@@ -35,6 +38,8 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
   void SetBGColor();
   void SetCenterModel();
+  void ButtonLightAllFunc();
+  void setLight();
 
  public slots:
   void SetScaleFromSlider(int sliderValue);

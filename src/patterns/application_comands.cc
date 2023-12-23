@@ -38,7 +38,6 @@ QString saveFileWithExtension(const QString &dialogTitle, const QString &default
             }
         }
     }
-
     return filePath;
 }
 

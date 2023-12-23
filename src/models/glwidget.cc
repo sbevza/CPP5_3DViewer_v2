@@ -272,32 +272,23 @@ void glWidget::LoadTexture() {
                texture_.bits());
 }
 
-// void glWidget::SaveUvMap() {
-//   QImage tex = ui_->widget->GetTexture();
-//   QPainter painter(&tex);
-//   if (ui_->widget->GetEdgeType() == kDashed) {
-//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::DotLine));
-//   } else {
-//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::SolidLine));
-//   }
-//   std::vector<double> vec = controller_->GetWireTextureArray();
-//   std::vector<unsigned int> ind = controller_->GetTextureIndexArray();
-//   size_t size = ind.size();
-//   for (size_t i = 0; i < size; i += 2) {
-//     painter.drawLine(tex.width() * vec.at(2 * ind.at(i)),
-//                      tex.height() * vec.at(2 * ind.at(i) + 1),
-//                      tex.width() * vec.at(2 * ind.at(i + 1)),
-//                      tex.height() * vec.at(2 * ind.at(i + 1) + 1));
-//   }
-//   QStringList save_filename;
-//   filedialog_->setDefaultSuffix("bmp");
-//   filedialog_->setNameFilter("BMP (*.bmp)");
-//   if (filedialog_->exec()) {
-//     save_filename = filedialog_->selectedFiles();
-//   }
-//   if (!save_filename.isEmpty()) {
-//     tex.save(save_filename[0]);
-//   }
-// }
+void glWidget::ButtonLightAllFunc() {
+  // double value_x = ui_->lineEditLightX->text().toDouble();
+  // double value_y = ui_->lineEditLightY->text().toDouble();
+  // double value_z = ui_->lineEditLightZ->text().toDouble();
+  // ui_->widget->SetPositionX(value_x);
+  // ui_->widget->SetPositionY(value_y);
+  // ui_->widget->SetPositionZ(value_z);
+  // ui_->widget->update();
+}
+
+void glWidget::setLight() {
+
+    float ambient_light[3];
+    LightColor.getRgbF(&ambient_light[0], &ambient_light[1],
+                         &ambient_light[2]);
+    glLightfv(GL_LIGHT0, GL_POSITION, position_light);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient_light);
+}
 
 } // namespace s21
