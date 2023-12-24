@@ -18,6 +18,7 @@ void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
 
 void glWidget::paintGL() {
   if (data.vertices.data()) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     projectionChange();
     glTranslatef(widgetdata.PosX_, widgetdata.PosY_, widgetdata.PosZ_);
     setScale();
