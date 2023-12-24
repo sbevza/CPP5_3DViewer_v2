@@ -10,59 +10,73 @@
 
 namespace s21 {
 
-class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
- public:
-  explicit glWidget(QWidget *parent = nullptr);
+struct WidgetData {
+  QImage Texture_;
+  QColor LineColor_;
+  QColor EDGEColor_;
 
-  int ProjectionType, LineType, EDGEType, ViewType = 0;
-  float LineThick, EDGEThick, Scale;
+  GLfloat PosX_, PosY_, PosZ_;
+  GLfloat RotX_, RotY_, RotZ_;
 
-  QImage texture_;
-
-  QColor LineColor;
-  QColor BGColor;
-  QColor EDGEColor;
-
-  GLfloat PosX;  // Позиция модели по оси X
-  GLfloat PosY;  // Позиция модели по оси Y
-  GLfloat PosZ;  // Позиция модели по оси Z
-
-  GLfloat RotX;  // Поле для хранения значения вращения по оси X
-  GLfloat RotY;
-  GLfloat RotZ;
-
-  s21::Attrib data = {0, 0, 0, 0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}};
-
-  void SetBGColor();
-  void SetCenterModel();
-
- public slots:
-  void SetScaleFromSlider(int sliderValue);
-
- private:
   QPoint mPos_;
-  QTimer tmr_;
   QColor prevBGColor_;
+  QColor BGColor_;
+
+  GLfloat light_R, light_G, light_B;
+  GLfloat posLight_X, posLight_Y, posLight_Z;
+
+  int ProjectionType_, LineType_, EDGEType_, ViewType_ = 0;
+  float LineThick_, EDGEThick_, Scale_;
+};
+
+class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+
+private:
+  WidgetData widgetdata;
+
+  void loadBGColor();
+  void setScale();
 
   void mousePressEvent(QMouseEvent *) override;
   void mouseMoveEvent(QMouseEvent *) override;
+  void wheelEvent(QWheelEvent *) override;
   void initializeGL() override;
   void resizeGL(int w, int h) override;
   void paintGL() override;
-  void wheelEvent(QWheelEvent *) override;
-  void ProjectionChange();
-  void SetTypeLine();
-  void SetEDGEType();
+  void projectionChange();
+  void setTypeLine();
+  void setEDGEType();
   void setPerspectiveProjection();
   void setOrthographicProjection();
   void setTypeViews();
-  void PaintWireFrame();
-  void TypeViewsModel();
-  void PaintShading();
-  void LoadTexture();
+  void paintWireFrame();
+  void typeViewsModel();
+  void paintShading();
+  void loadTexture();
+  void rotateModel();
+
   GLfloat calculateAspect();
   std::tuple<float, float, float> calculateModelDimensions() const;
-};
-}  // namespace s21
 
-#endif  // CPP4_3DVIEWER_V2_0_SRC_MODELS_GLWIDGET_H_
+public:
+  explicit glWidget(QWidget *parent = nullptr);
+
+  // Универсальный геттер
+  template <typename T> const T &getMember(T WidgetData::*member) const {
+    return widgetdata.*member;
+  }
+
+  // Универсальный сеттер
+  template <typename T> void setMember(T WidgetData::*member, const T &value) {
+    widgetdata.*member = value;
+  }
+
+  s21::Attrib data = {0, 0, 0, 0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}};
+
+  void SetCenterModel();
+  void ButtonLightAllFunc();
+  void setLight();
+};
+} // namespace s21
+
+#endif // CPP4_3DVIEWER_V2_0_SRC_MODELS_GLWIDGET_H_

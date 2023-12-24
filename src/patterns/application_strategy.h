@@ -44,7 +44,6 @@ class StrategyUV : public Strategy {
   Ui::MainWindow *ui_;
 };
 
-
 class MediaMaker {
  public:
   MediaMaker() : media_(nullptr) {}

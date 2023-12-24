@@ -1,10 +1,8 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
-    : QMainWindow(parent),
-      ui_(new Ui::MainWindow),
-      settings_("School_21", "3D_Viewer_2.0"),
-      controller_(controller) {
+    : QMainWindow(parent), ui_(new Ui::MainWindow),
+      settings_("School_21", "3D_Viewer_2.0"), controller_(controller) {
   ui_->setupUi(this);
 
   QIcon icon(":/icon.png");
@@ -15,6 +13,8 @@ MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
   initChangeBoxes();
   initSliders();
   ui_->ClearTexture_button->setEnabled(false);
+  ui_->LoadTexture_button->setEnabled(false);
+  ui_->SaveUV_buttonn->setEnabled(false);
 
   statusBar()->showMessage("Для начала откройте файл модели!");
 }
@@ -29,14 +29,18 @@ void MainWindow::initComboBox(QComboBox *comboBox,
 }
 
 void MainWindow::initChangeBoxes() {
-  initComboBox(ui_->type_line_box,
-               [=](int index) { ui_->openGLWidget->LineType = index; });
-  initComboBox(ui_->Projections_box,
-               [=](int index) { ui_->openGLWidget->ProjectionType = index; });
-  initComboBox(ui_->edge_box,
-               [=](int index) { ui_->openGLWidget->EDGEType = index; });
-  initComboBox(ui_->ViewType_box,
-               [=](int index) { ui_->openGLWidget->ViewType = index; });
+  initComboBox(ui_->type_line_box, [=](int index) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::LineType_, index);
+  });
+  initComboBox(ui_->Projections_box, [=](int index) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::ProjectionType_, index);
+  });
+  initComboBox(ui_->edge_box, [=](int index) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::EDGEType_, index);
+  });
+  initComboBox(ui_->ViewType_box, [=](int index) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::ViewType_, index);
+  });
 }
 
 void MainWindow::initSlider(QSlider *slider, QSpinBox *spinBox,
@@ -54,24 +58,35 @@ void MainWindow::initSlider(QSlider *slider, QSpinBox *spinBox,
 }
 
 void MainWindow::initSliders() {
-  initSlider(ui_->Slider_X, ui_->X_digit,
-             [=](int value) { ui_->openGLWidget->PosX = value / 4; });
-  initSlider(ui_->Slider_Y, ui_->Y_digit,
-             [=](int value) { ui_->openGLWidget->PosY = value; });
-  initSlider(ui_->Slider_Z, ui_->Z_digit,
-             [=](int value) { ui_->openGLWidget->PosZ = value / 0.8; });
-  initSlider(ui_->Slider_X_Rotate, ui_->X_Rotate_digit,
-             [=](int value) { ui_->openGLWidget->RotX = value; });
-  initSlider(ui_->Slider_Y_Rotate, ui_->Y_Rotate_digit,
-             [=](int value) { ui_->openGLWidget->RotY = value; });
-  initSlider(ui_->Slider_Z_Rotate, ui_->Z_Rotate_digit,
-             [=](int value) { ui_->openGLWidget->RotZ = value; });
-  initSlider(ui_->Slider_thickness, ui_->thickness_digit,
-             [=](int value) { ui_->openGLWidget->LineThick = value; });
-  initSlider(ui_->Slider_edge, ui_->Edge_digit,
-             [=](int value) { ui_->openGLWidget->EDGEThick = value; });
-  initSlider(ui_->Slider_size, ui_->Size,
-             [=](int value) { ui_->openGLWidget->SetScaleFromSlider(value); });
+  initSlider(ui_->Slider_X, ui_->X_digit, [=](GLfloat value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::PosX_, value / 4.0f);
+  });
+
+  initSlider(ui_->Slider_Y, ui_->Y_digit, [=](GLfloat value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::PosY_, value);
+  });
+  initSlider(ui_->Slider_Z, ui_->Z_digit, [=](GLfloat value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::PosZ_, value / 0.8f);
+  });
+
+  initSlider(ui_->Slider_X_Rotate, ui_->X_Rotate_digit, [=](GLfloat value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::RotX_, value);
+  });
+  initSlider(ui_->Slider_Y_Rotate, ui_->Y_Rotate_digit, [=](GLfloat value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::RotY_, value);
+  });
+  initSlider(ui_->Slider_Z_Rotate, ui_->Z_Rotate_digit, [=](GLfloat value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::RotZ_, value);
+  });
+  initSlider(ui_->Slider_thickness, ui_->thickness_digit, [=](float value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::LineThick_, value);
+  });
+  initSlider(ui_->Slider_edge, ui_->Edge_digit, [=](float value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::EDGEThick_, value);
+  });
+  initSlider(ui_->Slider_size, ui_->Size, [=](float value) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::Scale_, value);
+  });
 }
 
 MainWindow::~MainWindow() { delete ui_; }
@@ -162,22 +177,32 @@ void MainWindow::on_Reset_clicked() {
   resetSlider(ui_->Slider_Z_Rotate);
   resetSlider(ui_->Slider_size);
 
-  ui_->openGLWidget->EDGEColor = QColor(Qt::red);
-  ui_->openGLWidget->BGColor = QColor(Qt::black);
-  ui_->openGLWidget->LineColor = QColor(Qt::white);
+  ui_->openGLWidget->setMember(&s21::WidgetData::EDGEColor_, QColor(Qt::red));
+  ui_->openGLWidget->setMember(&s21::WidgetData::BGColor_, QColor(Qt::black));
+  ui_->openGLWidget->setMember(&s21::WidgetData::LineColor_, QColor(Qt::white));
+
+  ui_->openGLWidget->update();
 
   SaveSettings();
 }
 
 void MainWindow::SaveSettings() {
-  settings_.setValue("BGColor", ui_->openGLWidget->BGColor);
-  settings_.setValue("EDGEColor", ui_->openGLWidget->EDGEColor);
-  settings_.setValue("EDGEThick", ui_->openGLWidget->EDGEThick);
-  settings_.setValue("EDGEType", ui_->openGLWidget->EDGEType);
-  settings_.setValue("LineColor", ui_->openGLWidget->LineColor);
-  settings_.setValue("LineThick", ui_->openGLWidget->LineThick);
-  settings_.setValue("LineType", ui_->openGLWidget->LineType);
-  settings_.setValue("ProjectionType", ui_->openGLWidget->ProjectionType);
+  settings_.setValue("BGColor",
+                     ui_->openGLWidget->getMember(&s21::WidgetData::BGColor_));
+  settings_.setValue(
+      "EDGEColor", ui_->openGLWidget->getMember(&s21::WidgetData::EDGEColor_));
+  settings_.setValue(
+      "EDGEThick", ui_->openGLWidget->getMember(&s21::WidgetData::EDGEThick_));
+  settings_.setValue("EDGEType",
+                     ui_->openGLWidget->getMember(&s21::WidgetData::EDGEType_));
+  settings_.setValue(
+      "LineColor", ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_));
+  settings_.setValue(
+      "LineThick", ui_->openGLWidget->getMember(&s21::WidgetData::LineThick_));
+  settings_.setValue("LineType",
+                     ui_->openGLWidget->getMember(&s21::WidgetData::LineType_));
+  settings_.setValue("ProjectionType", ui_->openGLWidget->getMember(
+                                           &s21::WidgetData::ProjectionType_));
 
   ui_->openGLWidget->update();
 }
@@ -194,22 +219,30 @@ void MainWindow::LoadSettings() {
 
   ui_->edge_box->setCurrentIndex(settings_.value("EDGEType", 0).toInt());
 
-  ui_->openGLWidget->BGColor =
-      settings_.value("BGColor", QColor(Qt::black)).value<QColor>();
-  ui_->openGLWidget->LineColor =
-      settings_.value("LineColor", QColor(Qt::white)).value<QColor>();
-  ui_->openGLWidget->EDGEColor =
-      settings_.value("EDGEColor", QColor(Qt::black)).value<QColor>();
-
-  ui_->openGLWidget->ProjectionType =
-      settings_.value("ProjectionType", 0).toInt();
-  ui_->openGLWidget->LineType = settings_.value("LineType", 0).toInt();
-  ui_->openGLWidget->EDGEType = settings_.value("EDGEType", 0).toInt();
-
-  ui_->openGLWidget->LineThick = settings_.value("LineThick", 1.0).toFloat();
   ui_->thickness_digit->setValue(settings_.value("LineThick", 1).toInt());
-  ui_->openGLWidget->EDGEThick = settings_.value("EDGEThick", 1.0).toFloat();
+
+  ui_->openGLWidget->setMember(&s21::WidgetData::EDGEThick_,
+                               settings_.value("EDGEThick", 1.0).toFloat());
   ui_->Edge_digit->setValue(settings_.value("EDGEThick", 1).toInt());
+
+  ui_->openGLWidget->setMember(
+      &s21::WidgetData::BGColor_,
+      settings_.value("BGColor", QColor(Qt::black)).value<QColor>());
+
+  ui_->openGLWidget->setMember(
+      &s21::WidgetData::LineColor_,
+      settings_.value("LineColor", QColor(Qt::white)).value<QColor>());
+  ui_->openGLWidget->setMember(
+      &s21::WidgetData::EDGEColor_,
+      settings_.value("EDGEColor", QColor(Qt::black)).value<QColor>());
+  ui_->openGLWidget->setMember(&s21::WidgetData::ProjectionType_,
+                               settings_.value("ProjectionType", 0).toInt());
+  ui_->openGLWidget->setMember(&s21::WidgetData::LineType_,
+                               settings_.value("LineType", 0).toInt());
+  ui_->openGLWidget->setMember(&s21::WidgetData::EDGEType_,
+                               settings_.value("EDGEType", 0).toInt());
+  ui_->openGLWidget->setMember(&s21::WidgetData::LineThick_,
+                               settings_.value("LineThick", 1.0).toFloat());
 
   ui_->openGLWidget->update();
   update();
@@ -218,7 +251,7 @@ void MainWindow::LoadSettings() {
 void MainWindow::on_Vertex_color_clicked() {
   QColor color = QColorDialog::getColor(Qt::white, this, "Выберите цвет");
   if (color.isValid()) {
-    ui_->openGLWidget->LineColor = color;
+    ui_->openGLWidget->setMember(&s21::WidgetData::LineColor_, color);
     SaveSettings();
   }
 }
@@ -226,50 +259,33 @@ void MainWindow::on_Vertex_color_clicked() {
 void MainWindow::on_color_edge_clicked() {
   QColor color = QColorDialog::getColor(Qt::white, this, "Выберите цвет");
   if (color.isValid()) {
-    ui_->openGLWidget->EDGEColor = color;
+    ui_->openGLWidget->setMember(&s21::WidgetData::EDGEColor_, color);
     SaveSettings();
   }
 }
 
 void MainWindow::rotateModelOverTime(QString rotationAxis) {
-  // Определяем, по какой оси вращать
-  GLfloat *rotationPtr = nullptr;
-  if (rotationAxis == "RotX") {
-    rotationPtr = &ui_->openGLWidget->RotX;
-  } else if (rotationAxis == "RotY") {
-    rotationPtr = &ui_->openGLWidget->RotY;
-  } else if (rotationAxis == "RotZ") {
-    rotationPtr = &ui_->openGLWidget->RotZ;
-  }
-  GLfloat startAngle = *rotationPtr;
-  // Вычисляем интервал таймера (16 миллисекунд)
-  int timerInterval = 16;
-
-  // Создаем таймер с интервалом для плавной анимации
+  float i = 0;
   QTimer *timer = new QTimer(this);
-  connect(timer, &QTimer::timeout, [=]() {
-    // Увеличиваем угол на 1 градус
-    *rotationPtr += 1.0;
-
-    // Перерисовываем виджет
+  connect(timer, &QTimer::timeout, [=]() mutable {
+    if (rotationAxis == "RotX")
+      ui_->openGLWidget->setMember(&s21::WidgetData::RotX_, i++);
+    if (rotationAxis == "RotY")
+      ui_->openGLWidget->setMember(&s21::WidgetData::RotY_, i++);
+    if (rotationAxis == "RotZ")
+      ui_->openGLWidget->setMember(&s21::WidgetData::RotZ_, i++);
     ui_->openGLWidget->update();
-
-    // Проверяем, достигли ли конечного угла
-    if (*rotationPtr == (startAngle + 360.0f)) {
-      // Останавливаем таймер
+    if (i == 360)
       timer->stop();
-    }
   });
-
-  // Запускаем таймер с интервалом
-  timer->start(timerInterval);
+  timer->start(16);
 }
 
 void MainWindow::on_Background_color_clicked() {
   QColor color = QColorDialog::getColor(Qt::white, this, "Выберите цвет");
 
   if (color.isValid()) {
-    ui_->openGLWidget->BGColor = color;
+    ui_->openGLWidget->setMember(&s21::WidgetData::BGColor_, color);
     SaveSettings();
   }
 }
@@ -283,14 +299,18 @@ void MainWindow::on_LoadTexture_button_clicked() {
   QString bmpFilePath = commandInvoker_.runCommand(&openTexture);
 
   if (!bmpFilePath.isEmpty()) {
-    ui_->openGLWidget->texture_.load(bmpFilePath);
-    if (ui_->openGLWidget->texture_.width() <= 1024 &&
-        ui_->openGLWidget->texture_.height() <= 1024 &&
-        ui_->openGLWidget->texture_.width() ==
-            ui_->openGLWidget->texture_.height()) {
+    ui_->openGLWidget->setMember(&s21::WidgetData::Texture_,
+                                 QImage(bmpFilePath));
+    const QImage &texture =
+        ui_->openGLWidget->getMember(&s21::WidgetData::Texture_);
+
+    if (texture.width() <= 1024 && texture.height() <= 1024 &&
+        texture.width() == texture.height()) {
       ui_->statusbar->showMessage("Текстура загружена успешно!");
       ui_->openGLWidget->update();
       ui_->ClearTexture_button->setEnabled(true);
+      ui_->SaveUV_buttonn->setEnabled(true);
+
     } else {
       ui_->statusbar->showMessage("Ошибка загрузки текстуры");
     }
@@ -298,18 +318,36 @@ void MainWindow::on_LoadTexture_button_clicked() {
 }
 
 void MainWindow::on_ClearTexture_button_clicked() {
-  ui_->openGLWidget->texture_ = QImage();
+  ui_->openGLWidget->setMember(&s21::WidgetData::Texture_, QImage());
   ui_->openGLWidget->update();
   ui_->ClearTexture_button->setEnabled(false);
+  ui_->SaveUV_buttonn->setEnabled(false);
 }
 
-void MainWindow::on_SaveUV_buttonn_clicked()
-{
+void MainWindow::on_SaveUV_buttonn_clicked() {
   s21::SaveBMPCommand saveUV;
   QString bmpFilePath = commandInvoker_.runCommand(&saveUV);
-      s21::MediaMaker mediaMaker;
-      mediaMaker.SetMedia(makeUV, ui_);
-      mediaMaker.MakeMedia(bmpFilePath);
-
+  s21::MediaMaker mediaMaker;
+  mediaMaker.SetMedia(makeUV, ui_);
+  mediaMaker.MakeMedia(bmpFilePath);
 }
 
+void MainWindow::on_ViewType_box_currentIndexChanged(int index) {
+  if (index == 0)
+    ui_->LoadTexture_button->setEnabled(false);
+  else
+    ui_->LoadTexture_button->setEnabled(true);
+}
+
+void MainWindow::on_Light_button_clicked() {
+ui_->openGLWidget->setMember(&s21::WidgetData::posLight_X, ui_->X_light_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Y, ui_->Y_light_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Z, ui_->Z_light_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::light_R, ui_->R_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::light_G, ui_->G_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::light_B, ui_->B_line->text().toFloat());
+
+
+
+ui_->openGLWidget->update();  
+}

@@ -2,7 +2,7 @@
 
 namespace s21 {
 
-glWidget::glWidget(QWidget *parent) : QOpenGLWidget(parent), Scale(1.0f) {
+glWidget::glWidget(QWidget *parent) : QOpenGLWidget(parent) {
   setMouseTracking(true);
 }
 
@@ -10,68 +10,77 @@ void glWidget::initializeGL() {
   initializeOpenGLFunctions();
   glEnable(GL_DEPTH_TEST);
   glEnableClientState(GL_VERTEX_ARRAY);
-  SetBGColor();
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  loadBGColor();
 }
 
 void glWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
 
 void glWidget::paintGL() {
   if (data.vertices.data()) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    LoadTexture();
-    ProjectionChange();
-    glTranslatef(PosX, PosY, PosZ);
-    glScalef(Scale, Scale, Scale);
-    glRotatef(RotX, 1.0f, 0.0f, 0.0f);
-    glRotatef(RotY, 0.0f, 1.0f, 0.0f);
-    glRotatef(RotZ, 0.0f, 0.0f, 1.0f);
-    SetBGColor();
-    SetTypeLine();
+    projectionChange();
+    glTranslatef(widgetdata.PosX_, widgetdata.PosY_, widgetdata.PosZ_);
+    setScale();
+    rotateModel();
+    loadBGColor();
+
     setTypeViews();
-    glColor3f(LineColor.redF(), LineColor.greenF(), LineColor.blueF());
-    TypeViewsModel();
+    glColor3f(widgetdata.LineColor_.redF(), widgetdata.LineColor_.greenF(),
+              widgetdata.LineColor_.blueF());
+    typeViewsModel();
   } else
-    SetBGColor();
+    loadBGColor();
 }
 
-void glWidget::mousePressEvent(QMouseEvent *ma) { mPos_ = ma->pos(); }
+void glWidget::rotateModel() {
+  glRotatef(widgetdata.RotX_, 1.0f, 0.0f, 0.0f);
+  glRotatef(widgetdata.RotY_, 0.0f, 1.0f, 0.0f);
+  glRotatef(widgetdata.RotZ_, 0.0f, 0.0f, 1.0f);
+}
+
+void glWidget::mousePressEvent(QMouseEvent *ma) {
+  widgetdata.mPos_ = ma->pos();
+}
 
 void glWidget::mouseMoveEvent(QMouseEvent *ma) {
   if (ma->buttons() & Qt::RightButton) {
-    GLfloat dx = static_cast<GLfloat>(ma->pos().x() - mPos_.x());
-    GLfloat dy = static_cast<GLfloat>(ma->pos().y() - mPos_.y());
+    GLfloat dx = static_cast<GLfloat>(ma->pos().x() - widgetdata.mPos_.x());
+    GLfloat dy = static_cast<GLfloat>(ma->pos().y() - widgetdata.mPos_.y());
 
-    PosX += dx / 10;
-    PosY -= dy / 10;
-    mPos_ = ma->pos();
-    update();
+    widgetdata.PosX_ += dx / 10;
+    widgetdata.PosY_ -= dy / 10;
+    widgetdata.mPos_ = ma->pos();
+
   } else if (ma->buttons() & Qt::LeftButton) {
-    RotX = 1 / M_PI * (ma->pos().y() - mPos_.y());
-    RotY = 1 / M_PI * (ma->pos().x() - mPos_.x());
-    update();
+    GLfloat dx = static_cast<GLfloat>(ma->pos().x() - widgetdata.mPos_.x());
+    GLfloat dy = static_cast<GLfloat>(ma->pos().y() - widgetdata.mPos_.y());
+
+    widgetdata.RotX_ += 1 / M_PI * dy;
+    widgetdata.RotY_ += 1 / M_PI * dx;
+
+    widgetdata.mPos_ = ma->pos();
   }
+  update();
 }
 
 void glWidget::wheelEvent(QWheelEvent *event) {
   int delta = event->angleDelta().y();
-
+  if (widgetdata.Scale_ == 0)
+    widgetdata.Scale_ = 1;
   if (delta > 0)
-    Scale *= 1.1;
+    widgetdata.Scale_ *= 1.1;
   else if (delta < 0)
-    Scale /= 1.1;
-
-  update();
+    widgetdata.Scale_ /= 1.1;
 }
 
-void glWidget::ProjectionChange() {
+void glWidget::projectionChange() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  if (ProjectionType == 0) {
+  if (widgetdata.ProjectionType_ == 0)
     setPerspectiveProjection();
-  } else if (ProjectionType == 1) {
+  if (widgetdata.ProjectionType_ == 1)
     setOrthographicProjection();
-  }
 }
 
 void glWidget::setPerspectiveProjection() {
@@ -112,115 +121,92 @@ std::tuple<float, float, float> glWidget::calculateModelDimensions() const {
   return {modelCenterX, modelCenterY, maxModelSize};
 }
 
-void glWidget::SetTypeLine() {
-  if (LineType == 1) {
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(1, 0xF0F0);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth(LineThick);
-  } else {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glLineWidth(LineThick);
+void glWidget::setTypeLine() {
+  static int previousLineType = -1;
+
+  if (widgetdata.LineType_ != previousLineType) {
+    if (widgetdata.LineType_ == 1) {
+      glEnable(GL_LINE_STIPPLE);
+      glLineStipple(1, 0xF0F0);
+    } else {
+      glDisable(GL_LINE_STIPPLE);
+    }
+    previousLineType = widgetdata.LineType_;
   }
 }
 
-void glWidget::SetEDGEType() {
-  glPointSize(EDGEThick * 1.5);
+void glWidget::setEDGEType() {
+  glPointSize(widgetdata.EDGEThick_ * 1.5);
 
-  if (EDGEType) {
-    if (EDGEType == 1)
+  if (widgetdata.EDGEType_) {
+    if (widgetdata.EDGEType_ == 1)
       glEnable(GL_POINT_SMOOTH);
-    if (EDGEType == 2)
+    if (widgetdata.EDGEType_ == 2)
       glDisable(GL_POINT_SMOOTH);
-    glColor3f(EDGEColor.redF(), EDGEColor.greenF(), EDGEColor.blueF());
+    glColor3f(widgetdata.EDGEColor_.redF(), widgetdata.EDGEColor_.greenF(),
+              widgetdata.EDGEColor_.blueF());
     glDrawElements(GL_POINTS, data.numFaces, GL_UNSIGNED_INT,
                    data.faces.data());
   }
 }
 
-void glWidget::SetBGColor() {
-  // Проверяем, изменились ли значения цвета фона
-  if (BGColor != prevBGColor_) {
-    glClearColor(BGColor.redF(), BGColor.greenF(), BGColor.blueF(),
-                 BGColor.alphaF());
-    prevBGColor_ = BGColor;
+void glWidget::loadBGColor() {
+  if (widgetdata.BGColor_ != widgetdata.prevBGColor_) {
+    glClearColor(widgetdata.BGColor_.redF(), widgetdata.BGColor_.greenF(),
+                 widgetdata.BGColor_.blueF(), widgetdata.BGColor_.alphaF());
+    widgetdata.prevBGColor_ = widgetdata.BGColor_;
     update();
   }
 }
 
-void glWidget::SetScaleFromSlider(int sliderValue) {
-  // Нормализация значения слайдера в диапазоне от -10 до 10
-  float normalizedValue = static_cast<float>(sliderValue + 10) / 20.0f;
-  Scale = 0.5f + normalizedValue * 1.5f;
-  update();
+void glWidget::setScale() {
+  float baseScale = 1;
+
+  if (widgetdata.Scale_ > 0) {
+    baseScale *= widgetdata.Scale_ * 1.1;
+  } else if (widgetdata.Scale_ < 0) {
+    baseScale = 1 / (widgetdata.Scale_ * -1.1);
+  }
+  glScalef(baseScale, baseScale, baseScale);
 }
 
 void glWidget::setTypeViews() {
-  if (ViewType == 1) {
+  if (widgetdata.ViewType_ == 1) {
     glShadeModel(GL_FLAT);
   }
-  if (ViewType == 2) {
+  if (widgetdata.ViewType_ == 2) {
     glShadeModel(GL_SMOOTH);
   }
 }
 
-void glWidget::TypeViewsModel() {
-  if (ViewType == 0) {
-    PaintWireFrame();
+void glWidget::typeViewsModel() {
+  if (widgetdata.ViewType_ == 0) {
+    paintWireFrame();
   } else
-    PaintShading();
+    paintShading();
 }
 
-void glWidget::PaintWireFrame() {
+void glWidget::paintWireFrame() {
+  setTypeLine();
+  glLineWidth(widgetdata.LineThick_);
+
   glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
-  glDrawElements(GL_LINES, data.faces.size(), GL_UNSIGNED_INT, data.faces.data());
-  SetEDGEType();
+  glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
+  setEDGEType();
 }
 
-void glWidget::PaintShading() {
+void glWidget::paintShading() {
   glEnable(GL_LIGHTING); //теневой и текстурный рисунок
   glEnable(GL_LIGHT0);   //теневой и текстурный рисунок
   glEnable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
   glEnable(GL_NORMALIZE); //теневой и текстурный рисунок
   glEnable(GL_TEXTURE_2D); //текстурный рисунок
   setTypeViews();
+  loadTexture();
+  setLight();
+
   glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
   glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
-
-  // Массив вершин
-  std::vector<float> vertices = {
-      0.0, 1.0, 0.0,    // Вершина пирамиды
-      -1.0, 0.0, -1.0,  // Нижняя левая вершина основания
-      1.0, 0.0, -1.0,   // Нижняя правая вершина основания
-      1.0, 0.0, 1.0,    // Верхняя правая вершина основания
-      -1.0, 0.0, 1.0    // Верхняя левая вершина основания
-  };
-
-// Массив текстурных координат
-  std::vector<float> vertexTexture = {
-      0.5, 1.0,
-      0.0, 0.0,
-      1.0, 0.0,
-      1.0, 0.0,
-      0.0, 0.0
-  };
-
-// Массив нормалей
-  std::vector<float> vertexNormal = {
-      0.0, 1.0, 0.0,
-      -1.0, 0.0, 0.0,
-      1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0,
-      0.0, 0.0, -1.0
-  };
-
-// Индексный массив
-  std::vector<unsigned int> faces = {
-      0, 1, 2,
-      0, 2, 3,
-      0, 3, 4,
-      0, 4, 1
-  };
 
   glVertexPointer(3, GL_FLOAT, 0,
                   vertices.data()); //теневой и текстурный рисунок
@@ -230,7 +216,6 @@ void glWidget::PaintShading() {
                     vertexTexture.data()); //текстурный рисунок
   glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT,
                  faces.data()); // теневой и текстурный рисунок
-
 
   glDisable(GL_TEXTURE_2D); //текстурный рисунок
   glDisableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
@@ -242,10 +227,10 @@ void glWidget::PaintShading() {
 }
 
 void glWidget::SetCenterModel() {
-  Scale = 1.0f;
-  RotX = 0;
-  RotY = 0;
-  RotZ = 0;
+  widgetdata.Scale_ = 1.0f;
+  widgetdata.RotX_ = 0;
+  widgetdata.RotY_ = 0;
+  widgetdata.RotZ_ = 0;
 
   // Вычисляем размер модели по X и Y
   float modelWidth = data.maxX - data.minX;
@@ -255,50 +240,32 @@ void glWidget::SetCenterModel() {
   // чтобы уместить модель по X и Y
   float zOffset = modelWidth + modelHeight;
 
-  PosX = 0;
-  PosY = 0;
-  PosZ = -zOffset;
+  widgetdata.PosX_ = 0;
+  widgetdata.PosY_ = 0;
+  widgetdata.PosZ_ = -zOffset;
 
   glRotatef(90, 1.0f, 0.0f, 0.0f);
 
-  ProjectionChange();
+  projectionChange();
   update();
 }
 
-void glWidget::LoadTexture() {
+void glWidget::loadTexture() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, GLsizei(texture_.width()),
-               GLsizei(texture_.height()), 0, GL_RGBA, GL_UNSIGNED_BYTE,
-               texture_.bits());
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, GLsizei(widgetdata.Texture_.width()),
+               GLsizei(widgetdata.Texture_.height()), 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, widgetdata.Texture_.bits());
 }
 
-// void glWidget::SaveUvMap() {
-//   QImage tex = ui_->widget->GetTexture();
-//   QPainter painter(&tex);
-//   if (ui_->widget->GetEdgeType() == kDashed) {
-//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::DotLine));
-//   } else {
-//     painter.setPen(QPen(ui_->widget->GetEdgeColor(), 1, Qt::SolidLine));
-//   }
-//   std::vector<double> vec = controller_->GetWireTextureArray();
-//   std::vector<unsigned int> ind = controller_->GetTextureIndexArray();
-//   size_t size = ind.size();
-//   for (size_t i = 0; i < size; i += 2) {
-//     painter.drawLine(tex.width() * vec.at(2 * ind.at(i)),
-//                      tex.height() * vec.at(2 * ind.at(i) + 1),
-//                      tex.width() * vec.at(2 * ind.at(i + 1)),
-//                      tex.height() * vec.at(2 * ind.at(i + 1) + 1));
-//   }
-//   QStringList save_filename;
-//   filedialog_->setDefaultSuffix("bmp");
-//   filedialog_->setNameFilter("BMP (*.bmp)");
-//   if (filedialog_->exec()) {
-//     save_filename = filedialog_->selectedFiles();
-//   }
-//   if (!save_filename.isEmpty()) {
-//     tex.save(save_filename[0]);
-//   }
-// }
+void glWidget::setLight() {
+  GLfloat lightPosition[4] = {widgetdata.posLight_X, widgetdata.posLight_Y,
+                              widgetdata.posLight_Z, 1.0f};
+  GLfloat lightColor[4] = {widgetdata.light_R, widgetdata.light_G,
+                           widgetdata.light_B, 1.0f}; // 1.0f для альфа-канала
+
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, lightColor);
+}
 
 } // namespace s21
