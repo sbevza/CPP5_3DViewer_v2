@@ -14,7 +14,6 @@ struct WidgetData {
   QImage Texture_;
   QColor LineColor_;
   QColor EDGEColor_;
-  QColor LightColor_;
 
   GLfloat PosX_, PosY_, PosZ_;
   GLfloat RotX_, RotY_, RotZ_;
@@ -23,9 +22,11 @@ struct WidgetData {
   QColor prevBGColor_;
   QColor BGColor_;
 
+  GLfloat light_R, light_G, light_B;
+  GLfloat posLight_X, posLight_Y, posLight_Z;
+
   int ProjectionType_, LineType_, EDGEType_, ViewType_ = 0;
   float LineThick_, EDGEThick_, Scale_;
-  float position_light[3];
 };
 
 class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {

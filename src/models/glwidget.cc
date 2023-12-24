@@ -77,11 +77,10 @@ void glWidget::projectionChange() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  if (widgetdata.ProjectionType_ == 0) {
+  if (widgetdata.ProjectionType_ == 0)
     setPerspectiveProjection();
-  } else if (widgetdata.ProjectionType_ == 1) {
+  if (widgetdata.ProjectionType_ == 1)
     setOrthographicProjection();
-  }
 }
 
 void glWidget::setPerspectiveProjection() {
@@ -204,6 +203,7 @@ void glWidget::paintShading() {
   glEnable(GL_TEXTURE_2D); //текстурный рисунок
   setTypeViews();
   loadTexture();
+  setLight();
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
   glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
@@ -278,22 +278,14 @@ void glWidget::loadTexture() {
                GL_UNSIGNED_BYTE, widgetdata.Texture_.bits());
 }
 
-void glWidget::ButtonLightAllFunc() {
-  // double value_x = ui_->lineEditLightX->text().toDouble();
-  // double value_y = ui_->lineEditLightY->text().toDouble();
-  // double value_z = ui_->lineEditLightZ->text().toDouble();
-  // ui_->widget->SetPositionX(value_x);
-  // ui_->widget->SetPositionY(value_y);
-  // ui_->widget->SetPositionZ(value_z);
-  // ui_->widget->update();
-}
-
 void glWidget::setLight() {
-  float ambient_light[3];
-  widgetdata.LightColor_.getRgbF(&ambient_light[0], &ambient_light[1],
-                                 &ambient_light[2]);
-  glLightfv(GL_LIGHT0, GL_POSITION, widgetdata.position_light);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, ambient_light);
+  GLfloat lightPosition[4] = {widgetdata.posLight_X, widgetdata.posLight_Y,
+                              widgetdata.posLight_Z, 1.0f};
+  GLfloat lightColor[4] = {widgetdata.light_R, widgetdata.light_G,
+                           widgetdata.light_B, 1.0f}; // 1.0f для альфа-канала
+
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, lightColor);
 }
 
 } // namespace s21

@@ -15,7 +15,6 @@ MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
   ui_->ClearTexture_button->setEnabled(false);
   ui_->LoadTexture_button->setEnabled(false);
   ui_->SaveUV_buttonn->setEnabled(false);
-  
 
   statusBar()->showMessage("Для начала откройте файл модели!");
 }
@@ -33,7 +32,6 @@ void MainWindow::initChangeBoxes() {
   initComboBox(ui_->type_line_box, [=](int index) {
     ui_->openGLWidget->setMember(&s21::WidgetData::LineType_, index);
   });
-
   initComboBox(ui_->Projections_box, [=](int index) {
     ui_->openGLWidget->setMember(&s21::WidgetData::ProjectionType_, index);
   });
@@ -324,7 +322,6 @@ void MainWindow::on_ClearTexture_button_clicked() {
   ui_->openGLWidget->update();
   ui_->ClearTexture_button->setEnabled(false);
   ui_->SaveUV_buttonn->setEnabled(false);
-
 }
 
 void MainWindow::on_SaveUV_buttonn_clicked() {
@@ -335,11 +332,22 @@ void MainWindow::on_SaveUV_buttonn_clicked() {
   mediaMaker.MakeMedia(bmpFilePath);
 }
 
-void MainWindow::on_ViewType_box_currentIndexChanged(int index)
-{
+void MainWindow::on_ViewType_box_currentIndexChanged(int index) {
   if (index == 0)
     ui_->LoadTexture_button->setEnabled(false);
-    else
+  else
     ui_->LoadTexture_button->setEnabled(true);
 }
 
+void MainWindow::on_Light_button_clicked() {
+ui_->openGLWidget->setMember(&s21::WidgetData::posLight_X, ui_->X_light_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Y, ui_->Y_light_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Z, ui_->Z_light_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::light_R, ui_->R_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::light_G, ui_->G_line->text().toFloat());
+ui_->openGLWidget->setMember(&s21::WidgetData::light_B, ui_->B_line->text().toFloat());
+
+
+
+ui_->openGLWidget->update();  
+}

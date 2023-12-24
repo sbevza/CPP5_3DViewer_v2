@@ -43,6 +43,8 @@ class MainWindow : public QMainWindow {
 
   void on_ViewType_box_currentIndexChanged(int index);
 
+  void on_Light_button_clicked();
+
   private:
   Ui::MainWindow* ui_;
   QSettings settings_;

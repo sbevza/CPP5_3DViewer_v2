@@ -3,7 +3,7 @@
 namespace s21 {
 
 void StrategyImage::make(QString filename) {
-  s21::glWidget* widget = ui_->openGLWidget;
+  s21::glWidget *widget = ui_->openGLWidget;
 
   QRect widgetGeometry = widget->geometry();
 
@@ -45,7 +45,8 @@ void StrategyGif::make(QString filename) {
     QPixmap pixmap(ui_->openGLWidget->size());
     ui_->openGLWidget->render(&pixmap, QPoint(),
                               QRegion(ui_->openGLWidget->rect()));
-    pixmap = pixmap.scaled(targetWidth, targetHeight, Qt::KeepAspectRatio);
+pixmap = pixmap.scaled(targetWidth, targetHeight, Qt::IgnoreAspectRatio);
+
     QImage image = pixmap.toImage();
     gif.GifWriteFrame(&gifWriter, image.bits(), targetWidth, targetHeight, 0);
     timer = QTime::currentTime().addMSecs(100);
@@ -67,8 +68,9 @@ void StrategyGif::make(QString filename) {
 void StrategyUV::make(QString filename) {
   QImage tex = ui_->openGLWidget->getMember(&s21::WidgetData::Texture_);
   QPainter painter(&tex);
-  painter.setPen(QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_),
-                      1, Qt::SolidLine));
+  painter.setPen(
+      QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_), 1,
+           Qt::SolidLine));
 
   // std::vector<float> vec = ui_->openGLWidget->vertexTexture;
   // std::vector<unsigned int> ind = ui_->openGLWidget->faces;
@@ -89,10 +91,11 @@ void StrategyUV::make(QString filename) {
 MediaMaker::~MediaMaker() { delete media_; }
 
 void MediaMaker::MakeMedia(QString filename) {
-  if (media_) media_->make(filename);
+  if (media_)
+    media_->make(filename);
 }
 
-void MediaMaker::SetMedia(strategy strategyType, Ui::MainWindow* ui) {
+void MediaMaker::SetMedia(strategy strategyType, Ui::MainWindow *ui) {
   if (strategyType == makeImage) {
     media_ = new StrategyImage(ui);
   } else if (strategyType == makeGif) {
@@ -102,4 +105,4 @@ void MediaMaker::SetMedia(strategy strategyType, Ui::MainWindow* ui) {
   }
 }
 
-}  // namespace s21
+} // namespace s21
