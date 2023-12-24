@@ -196,34 +196,30 @@ void glWidget::paintWireFrame() {
 }
 
 void glWidget::paintShading() {
-  glEnable(GL_LIGHTING); //теневой и текстурный рисунок
-  glEnable(GL_LIGHT0);   //теневой и текстурный рисунок
-  glEnable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
-  glEnable(GL_NORMALIZE); //теневой и текстурный рисунок
-  glEnable(GL_TEXTURE_2D); //текстурный рисунок
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_TEXTURE_2D);
   setTypeViews();
   loadTexture();
   setLight();
 
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
-  glEnableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
 
-  glVertexPointer(3, GL_FLOAT, 0,
-                  vertices.data()); //теневой и текстурный рисунок
-  glNormalPointer(GL_FLOAT, 0,
-                  vertexNormal.data()); //теневой и текстурный рисунок
-  glTexCoordPointer(2, GL_FLOAT, 0,
-                    vertexTexture.data()); //текстурный рисунок
-  glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT,
-                 faces.data()); // теневой и текстурный рисунок
+  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
+  glNormalPointer(GL_FLOAT, 0, data.vertexNormal.data());
+  glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
+  glDrawElements(GL_TRIANGLES, data.faces.size(), GL_UNSIGNED_INT, data.faces.data());
 
-  glDisable(GL_TEXTURE_2D); //текстурный рисунок
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY); //текстурный рисунок
-  glDisable(GL_LIGHTING); //теневой и текстурный рисунок
-  glDisable(GL_LIGHT0); //теневой и текстурный рисунок
-  glDisable(GL_COLOR_MATERIAL); //теневой и текстурный рисунок
-  glDisable(GL_NORMALIZE); //теневой и текстурный рисунок
-  glDisableClientState(GL_NORMAL_ARRAY); //теневой и текстурный рисунок
+  glDisable(GL_TEXTURE_2D);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_LIGHT0);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_NORMALIZE);
+  glDisableClientState(GL_NORMAL_ARRAY);
 }
 
 void glWidget::SetCenterModel() {
