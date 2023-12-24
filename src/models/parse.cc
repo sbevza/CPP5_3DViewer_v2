@@ -63,6 +63,7 @@ void Parser::attribInit() {
   attrib_->minZ = FLT_MAX;
   attrib_->maxZ = -FLT_MAX;
   uniqueFace_.clear();
+  uniqueFaceShade_.clear();
 }
 
 std::vector<char> Parser::getFileData() {
@@ -244,9 +245,9 @@ void Parser::parseFaceCommand(Command &command, const std::string &line, size_t 
   for (k = 2; k < num_f; k++) {
     i1 = i2;
     i2 = f[k];
-    command.fShade.push_back(i0.vIdx);
-    command.fShade.push_back(i1.vIdx);
-    command.fShade.push_back(i2.vIdx);
+    command.fShade.push_back({i0.vIdx, i0.vtIdx, i0.vnIdx});
+    command.fShade.push_back({i1.vIdx, i1.vtIdx, i1.vnIdx});
+    command.fShade.push_back({i2.vIdx, i2.vtIdx, i2.vnIdx});
   }
 
   for (size_t k = 0; k < num_f; k++) {
@@ -318,10 +319,10 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
     attrib_->faces.push_back(face.first);
     attrib_->faces.push_back(face.second);
   }
-  for (const auto &faceShade : uniqueFaceShade_) {
-    attrib_->facesShade.push_back(faceShade.first);
-    attrib_->facesShade.push_back(faceShade.second);
-  }
+//  for (const auto &faceShade : uniqueFaceShade_) {
+//    attrib_->facesShade.push_back(faceShade.first);
+//    attrib_->facesShade.push_back(faceShade.second);
+//  }
 }
 
 void Parser::processNormal(const Command &command) {
@@ -394,7 +395,7 @@ void Parser::processFace(const Command &command, size_t &f_count,
 
     if (!command.fShade.empty()) {
       for (auto f : command.fShade) {
-        attrib_->facesShade.push_back(fixIndex(f, v_count));
+        attrib_->facesShade.push_back(fixIndex(std::get<0>(f), v_count));
       }
     }
   }

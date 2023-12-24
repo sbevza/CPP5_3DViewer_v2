@@ -49,7 +49,7 @@ struct Command {
   float vtU, vtV;
   float vnX, vnY, vnZ;
   std::vector<int> f;
-  std::vector<int> fShade;
+  std::vector<std::tuple<int, int, int>> fShade;
   std::vector<int> vtIdx;
   std::vector<int> vnIdx;
 
