@@ -145,7 +145,7 @@ void glWidget::setEDGEType() {
       glDisable(GL_POINT_SMOOTH);
     glColor3f(widgetdata.EDGEColor_.redF(), widgetdata.EDGEColor_.greenF(),
               widgetdata.EDGEColor_.blueF());
-    glDrawElements(GL_POINTS, data.numFaces, GL_UNSIGNED_INT,
+    glDrawElements(GL_POINTS, data.faces.size(), GL_UNSIGNED_INT,
                    data.faces.data());
   }
 }
@@ -191,7 +191,7 @@ void glWidget::paintWireFrame() {
   glLineWidth(widgetdata.LineThick_);
 
   glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
-  glDrawElements(GL_LINES, data.numFaces, GL_UNSIGNED_INT, data.faces.data());
+  glDrawElements(GL_LINES, data.faces.size(), GL_UNSIGNED_INT, data.faces.data());
   setEDGEType();
 }
 
@@ -211,7 +211,7 @@ void glWidget::paintShading() {
   glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
   glNormalPointer(GL_FLOAT, 0, data.vertexNormal.data());
   glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
-  glDrawElements(GL_TRIANGLES, data.faces.size(), GL_UNSIGNED_INT, data.faces.data());
+  glDrawElements(GL_TRIANGLES, data.facesShade.size(), GL_UNSIGNED_INT, data.facesShade.data());
 
   glDisable(GL_TEXTURE_2D);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);

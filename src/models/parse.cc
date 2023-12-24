@@ -55,7 +55,6 @@ void Parser::attribInit() {
   attrib_->vtIdx.clear();
   attrib_->vnIdx.clear();
   attrib_->numVertices = 0;
-//  attrib_->numFaces = 0;
   attrib_->numFaceNumVerts = 0;
   attrib_->minX = FLT_MAX;
   attrib_->maxX = -FLT_MAX;
@@ -274,7 +273,6 @@ size_t Parser::fixIndex(int idx, size_t num_v) {
 void Parser::setAttrib(size_t num_v, size_t num_f, size_t num_faces) {
   if (num_v) {
     attrib_->numVertices = static_cast<unsigned int>(num_v);
-//    attrib_->numFaces = static_cast<unsigned int>(num_f);
     attrib_->numFaceNumVerts = static_cast<unsigned int>(num_faces);
     attrib_->vertices = std::vector<float>(num_v * 3);
   } else {
@@ -308,7 +306,7 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
       processNormal(command);
     }
   }
-//  attrib_->numFaces = f_count;
+
   attrib_->numVertices = v_count;
   attrib_->minX = minX - centerX;
   attrib_->maxX = maxX - centerX;
