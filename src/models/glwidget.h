@@ -11,26 +11,20 @@
 namespace s21 {
 
 struct WidgetData {
-  QImage texture_;
-  QColor LineColor;
-  QColor EDGEColor;
-  QColor LightColor;
+  QImage Texture_;
+  QColor LineColor_;
+  QColor EDGEColor_;
+  QColor LightColor_;
 
-  GLfloat PosX;
-  GLfloat PosY;
-  GLfloat PosZ;
-
-  GLfloat RotX;
-  GLfloat RotY;
-  GLfloat RotZ;
+  GLfloat PosX_, PosY_, PosZ_;
+  GLfloat RotX_, RotY_, RotZ_;
 
   QPoint mPos_;
-  QTimer tmr_;
   QColor prevBGColor_;
   QColor BGColor_;
 
-  int ProjectionType, LineType, EDGEType, ViewType = 0;
-  float LineThick, EDGEThick, Scale;
+  int ProjectionType_, LineType_, EDGEType_, ViewType_ = 0;
+  float LineThick_, EDGEThick_, Scale_;
   float position_light[3];
 };
 
@@ -39,25 +33,25 @@ class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 private:
   WidgetData widgetdata;
 
-  void LoadBGColor();
-  void SetScale();
+  void loadBGColor();
+  void setScale();
 
   void mousePressEvent(QMouseEvent *) override;
   void mouseMoveEvent(QMouseEvent *) override;
+  void wheelEvent(QWheelEvent *) override;
   void initializeGL() override;
   void resizeGL(int w, int h) override;
   void paintGL() override;
-  void wheelEvent(QWheelEvent *) override;
-  void ProjectionChange();
-  void SetTypeLine();
-  void SetEDGEType();
+  void projectionChange();
+  void setTypeLine();
+  void setEDGEType();
   void setPerspectiveProjection();
   void setOrthographicProjection();
   void setTypeViews();
-  void PaintWireFrame();
-  void TypeViewsModel();
-  void PaintShading();
-  void LoadTexture();
+  void paintWireFrame();
+  void typeViewsModel();
+  void paintShading();
+  void loadTexture();
   void rotateModel();
 
   GLfloat calculateAspect();

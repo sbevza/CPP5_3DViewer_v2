@@ -41,7 +41,9 @@ class MainWindow : public QMainWindow {
 
   void on_SaveUV_buttonn_clicked();
 
- private:
+  void on_ViewType_box_currentIndexChanged(int index);
+
+  private:
   Ui::MainWindow* ui_;
   QSettings settings_;
   s21::Controller* controller_;

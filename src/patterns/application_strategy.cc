@@ -65,9 +65,9 @@ void StrategyGif::make(QString filename) {
 }
 
 void StrategyUV::make(QString filename) {
-  QImage tex = ui_->openGLWidget->getMember(&s21::WidgetData::texture_);
+  QImage tex = ui_->openGLWidget->getMember(&s21::WidgetData::Texture_);
   QPainter painter(&tex);
-  painter.setPen(QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor),
+  painter.setPen(QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_),
                       1, Qt::SolidLine));
 
   // std::vector<float> vec = ui_->openGLWidget->vertexTexture;
