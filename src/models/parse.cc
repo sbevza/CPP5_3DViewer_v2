@@ -49,9 +49,12 @@ void Parser::parseObj(Attrib &attrib, std::string &filename) {
 
 void Parser::attribInit() {
   attrib_->vertices.clear();
+  attrib_->verticesShade.clear();
   attrib_->vertexTexture.clear();
   attrib_->vertexNormal.clear();
+  attrib_->vertexNormalShade.clear();
   attrib_->faces.clear();
+  attrib_->facesShade.clear();
   attrib_->vtIdx.clear();
   attrib_->vnIdx.clear();
   attrib_->numVertices = 0;
@@ -319,10 +322,23 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
     attrib_->faces.push_back(face.first);
     attrib_->faces.push_back(face.second);
   }
-//  for (const auto &faceShade : uniqueFaceShade_) {
-//    attrib_->facesShade.push_back(faceShade.first);
-//    attrib_->facesShade.push_back(faceShade.second);
-//  }
+  for (const auto &face : uniqueFaceShade_) {
+    int vertexIndex, textureIndex, normalIndex;
+    std::tie(vertexIndex, textureIndex, normalIndex) = face;
+
+    attrib_->facesShade.push_back(vertexIndex);
+
+    attrib_->verticesShade.push_back(attrib_->vertices[3 * (vertexIndex)]);
+    attrib_->verticesShade.push_back(attrib_->vertices[3 * (vertexIndex) + 1]);
+    attrib_->verticesShade.push_back(attrib_->vertices[3 * (vertexIndex) + 2]);
+
+    attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex]);
+    attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex + 1]);
+
+    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * (normalIndex)]);
+    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * (normalIndex) + 1]);
+    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * (normalIndex) + 2]);
+  }
 }
 
 void Parser::processNormal(const Command &command) {
@@ -395,7 +411,10 @@ void Parser::processFace(const Command &command, size_t &f_count,
 
     if (!command.fShade.empty()) {
       for (auto f : command.fShade) {
-        attrib_->facesShade.push_back(fixIndex(std::get<0>(f), v_count));
+//        attrib_->facesShade.push_back(fixIndex(std::get<0>(f), v_count));
+        uniqueFaceShade_.push_back({fixIndex(std::get<0>(f), v_count),
+                                    fixIndex(std::get<1>(f), v_count),
+                                    fixIndex(std::get<2>(f), v_count)});
       }
     }
   }

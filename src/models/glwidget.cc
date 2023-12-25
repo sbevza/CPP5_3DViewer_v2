@@ -209,9 +209,9 @@ void glWidget::paintShading() {
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
 
-  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());
-  glNormalPointer(GL_FLOAT, 0, data.vertexNormal.data());
-  glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTexture.data());
+  glVertexPointer(3, GL_FLOAT, 0, data.verticesShade.data());
+  glNormalPointer(GL_FLOAT, 0, data.vertexNormalShade.data());
+  glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTextureShade.data());
   glDrawElements(GL_TRIANGLES, data.facesShade.size(), GL_UNSIGNED_INT, data.facesShade.data());
 
   glDisable(GL_TEXTURE_2D);

@@ -10,7 +10,6 @@
 
 namespace s21 {
 
-//constexpr size_t kMaxFacesPerFLine = 200;
 constexpr size_t kMaxLineBuffer = 4096;
 
 struct VertexIndex {
@@ -21,7 +20,6 @@ struct VertexIndex {
 
 struct Attrib {
   unsigned int numVertices;
-//  unsigned int numFaces;
   unsigned int numFaceNumVerts;
 
   float minX, maxX;
@@ -29,8 +27,11 @@ struct Attrib {
   float minZ, maxZ;
 
   std::vector<float> vertices;
+  std::vector<float> verticesShade;
   std::vector<float> vertexTexture;
+  std::vector<float> vertexTextureShade;
   std::vector<float> vertexNormal;
+  std::vector<float> vertexNormalShade;
   std::vector<unsigned int> faces;
   std::vector<unsigned int> facesShade;
   std::vector<size_t> vtIdx;
@@ -70,7 +71,7 @@ class Parser {
   Attrib *attrib_{nullptr};
 
   std::set<std::pair<int, int>> uniqueFace_;
-  std::set<std::pair<int, int>> uniqueFaceShade_;
+  std::vector<std::tuple<int, int, int>> uniqueFaceShade_;
 
   void commandToAttrib(const std::vector<Command> &commands);
   std::vector<char> getFileData();
