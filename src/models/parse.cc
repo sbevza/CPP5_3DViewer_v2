@@ -22,7 +22,6 @@ void Parser::parseObj(Attrib &attrib, std::string &filename) {
   size_t lines = getLineInfos(buf, lineInfos);
   std::vector<Command> commands;
   if (!err_) commands.resize(lines);
-
   size_t numFaces = 0;
   size_t numV = 0;
   size_t numF = 0;
@@ -55,9 +54,6 @@ void Parser::attribInit() {
   attrib_->vertexNormal.clear();
   attrib_->vertexNormalShade.clear();
   attrib_->faces.clear();
-  attrib_->facesShade.clear();
-  attrib_->vtIdx.clear();
-  attrib_->vnIdx.clear();
   attrib_->numVertices = 0;
   attrib_->numFaceNumVerts = 0;
   attrib_->minX = FLT_MAX;
@@ -88,7 +84,6 @@ std::vector<char> Parser::getFileData() {
   }
 
   return buffer;
-
 }
 
 int Parser::isLineEnding(std::vector<char> &ch, size_t i, size_t end_i) {
@@ -151,8 +146,8 @@ float Parser::parseDouble(const std::string &str, size_t &pos) {
 VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
   VertexIndex vi{};
   vi.vIdx = 0;
-  vi.vtIdx = -1;
-  vi.vnIdx = -1;
+  vi.vtIdx = 0;
+  vi.vnIdx = 0;
 
   size_t nextPos = str.find_first_of(" \t\r", pos);
   std::string subStr = str.substr(pos, nextPos - pos);
@@ -242,11 +237,10 @@ void Parser::parseFaceCommand(Command &command, const std::string &line, size_t 
 
   command.type = CommandType::F;
 
-  size_t k;
   VertexIndex i0 = f[0];
   VertexIndex i1{};
   VertexIndex i2 = f[1];
-  for (k = 2; k < num_f; k++) {
+  for (size_t k = 2; k < num_f; k++) {
     i1 = i2;
     i2 = f[k];
     command.fShade.push_back({i0.vIdx, i0.vtIdx, i0.vnIdx});
@@ -327,29 +321,37 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
     int vertexIndex, textureIndex, normalIndex;
     std::tie(vertexIndex, textureIndex, normalIndex) = face;
 
-    attrib_->facesShade.push_back(vertexIndex);
-
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex]);
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 1]);
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 2]);
 
-    attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex]);
-    attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex + 1]);
+    if (!attrib_->vertexTexture.empty()) {
+      attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex]);
+      attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex + 1]);
+    }
 
-    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex]);
-    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 1]);
-    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 2]);
+    if (!attrib_->vertexNormal.empty()) {
+      attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex]);
+      attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 1]);
+      attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 2]);
+    }
 
-//    Vertex normal = calculateNormal(
-//        {attrib_->vertices[3 * vIdx1], attrib_->vertices[3 * vIdx1 + 1], attrib_->vertices[3 * vIdx1 + 2]},
-//        {attrib_->vertices[3 * vIdx2], attrib_->vertices[3 * vIdx2 + 1], attrib_->vertices[3 * vIdx2 + 2]},
-//        {attrib_->vertices[3 * vIdx3], attrib_->vertices[3 * vIdx3 + 1], attrib_->vertices[3 * vIdx3 + 2]}
-//    );
-//
-//    attrib_->vertexNormalShade.push_back(normal.x);
-//    attrib_->vertexNormalShade.push_back(normal.y);
-//    attrib_->vertexNormalShade.push_back(normal.z);
+  }
 
+  if (attrib_->vertexNormal.empty()) {
+    for (size_t i = 0; i < attrib_->verticesShade.size(); i += 9) {
+      Vertex v1 = {attrib_->verticesShade[i], attrib_->verticesShade[i + 1], attrib_->verticesShade[i + 2]};
+      Vertex v2 = {attrib_->verticesShade[i + 3], attrib_->verticesShade[i + 4], attrib_->verticesShade[i + 5]};
+      Vertex v3 = {attrib_->verticesShade[i + 6], attrib_->verticesShade[i + 7], attrib_->verticesShade[i + 8]};
+
+      Vertex normal = calculateNormal(v1, v2, v3);
+
+      for (int j = 0; j < 3; ++j) {
+        attrib_->vertexNormalShade.push_back(normal.x);
+        attrib_->vertexNormalShade.push_back(normal.y);
+        attrib_->vertexNormalShade.push_back(normal.z);
+      }
+    }
   }
 
 }
@@ -391,17 +393,10 @@ void Parser::processVertex(const Command &command, float centerX, float centerY,
 void Parser::processFace(const Command &command, size_t &f_count,
                          size_t v_count) {
 
-  if (attrib_->vnIdx.size() != v_count) {
-    attrib_->vnIdx.resize(v_count);
-    attrib_->vtIdx.resize(v_count);
-  }
-
-  if (command.numF > 0) {
+  if (!command.f.empty()) {
     size_t k = 0;
     size_t previous_v_idx = fixIndex(command.f[k++], v_count);
-    for (; k < command.numF; ++k) {
-      attrib_->vnIdx[previous_v_idx] = fixIndex(command.vnIdx[k - 1], v_count);
-      attrib_->vtIdx[previous_v_idx] = fixIndex(command.vtIdx[k - 1], v_count);
+    for (; k < command.f.size(); ++k) {
       size_t v_idx = fixIndex(command.f[k], v_count);
       auto result
           = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx),
@@ -413,8 +408,6 @@ void Parser::processFace(const Command &command, size_t &f_count,
       previous_v_idx = v_idx;
     }
 
-    attrib_->vnIdx[previous_v_idx] = fixIndex(command.vnIdx[k - 1], v_count);
-    attrib_->vtIdx[previous_v_idx] = fixIndex(command.vtIdx[k - 1], v_count);
     // Замыкание грани
     size_t v_idx = fixIndex(command.f[0], v_count);
     auto result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
@@ -424,7 +417,6 @@ void Parser::processFace(const Command &command, size_t &f_count,
 
     if (!command.fShade.empty()) {
       for (auto f : command.fShade) {
-//        attrib_->facesShade.push_back(fixIndex(std::get<0>(f), v_count));
         uniqueFaceShade_.push_back({fixIndex(std::get<0>(f), v_count),
                                     fixIndex(std::get<1>(f), v_count),
                                     fixIndex(std::get<2>(f), v_count)});
@@ -434,19 +426,16 @@ void Parser::processFace(const Command &command, size_t &f_count,
 }
 
 Vertex Parser::calculateNormal(Vertex v1, Vertex v2, Vertex v3) {
-  // Вычисляем два вектора из трех вершин
   Vertex vec1 = {v2.x - v1.x, v2.y - v1.y, v2.z - v1.z};
   Vertex vec2 = {v3.x - v1.x, v3.y - v1.y, v3.z - v1.z};
 
-  // Вычисляем векторное произведение
   Vertex normal = {
       vec1.y * vec2.z - vec1.z * vec2.y,
       vec1.z * vec2.x - vec1.x * vec2.z,
       vec1.x * vec2.y - vec1.y * vec2.x
   };
 
-  // Нормализуем вектор
-  float length = sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+  float length = std::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
   normal.x /= length;
   normal.y /= length;
   normal.z /= length;

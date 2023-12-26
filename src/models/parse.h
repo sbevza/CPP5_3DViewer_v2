@@ -40,9 +40,6 @@ struct Attrib {
   std::vector<float> vertexNormal;
   std::vector<float> vertexNormalShade;
   std::vector<unsigned int> faces;
-  std::vector<unsigned int> facesShade;
-  std::vector<size_t> vtIdx;
-  std::vector<size_t> vnIdx;
 };
 
 struct LineInfo {
@@ -104,9 +101,9 @@ class Parser {
                                   size_t &pos, int &res);
   static void parseNormalCommand(Command &command, const std::string &line,
                                  size_t &pos, int &res);
-  void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
+  static void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
                         int &res);
-  Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
+  static Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
 };
 }  // namespace s21
 

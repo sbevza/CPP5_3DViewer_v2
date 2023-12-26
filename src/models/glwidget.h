@@ -56,7 +56,7 @@ private:
   void rotateModel();
 
   GLfloat calculateAspect();
-  std::tuple<float, float, float> calculateModelDimensions() const;
+  [[nodiscard]] std::tuple<float, float, float> calculateModelDimensions() const;
 
 public:
   explicit glWidget(QWidget *parent = nullptr);
