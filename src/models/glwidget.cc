@@ -206,21 +206,30 @@ void glWidget::paintShading() {
   loadTexture();
   setLight();
 
+  glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
 
+//  glVertexPointer(3, GL_FLOAT, 0, data.verticesShade.data());
+//  glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTextureShade.data());
+//  glNormalPointer(GL_FLOAT, 0, data.vertexNormalShade.data());
+//  glDrawElements(GL_TRIANGLES, data.facesShade.size(), GL_UNSIGNED_INT, data.facesShade.data());
+
   glVertexPointer(3, GL_FLOAT, 0, data.verticesShade.data());
-  glNormalPointer(GL_FLOAT, 0, data.vertexNormalShade.data());
   glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTextureShade.data());
-  glDrawElements(GL_TRIANGLES, data.facesShade.size(), GL_UNSIGNED_INT, data.facesShade.data());
+  glNormalPointer(GL_FLOAT, 0, data.vertexNormalShade.data());
+
+  glDrawArrays(GL_TRIANGLES, 0, data.verticesShade.size() / 3);
+
+  glDisableClientState(GL_NORMAL_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
 
   glDisable(GL_TEXTURE_2D);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  glDisable(GL_LIGHTING);
-  glDisable(GL_LIGHT0);
-  glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_NORMALIZE);
-  glDisableClientState(GL_NORMAL_ARRAY);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_LIGHT0);
+  glDisable(GL_LIGHTING);
 }
 
 void glWidget::SetCenterModel() {

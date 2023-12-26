@@ -1,3 +1,4 @@
+#include <cmath>
 #include "parse.h"
 
 namespace s21 {
@@ -328,17 +329,29 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
 
     attrib_->facesShade.push_back(vertexIndex);
 
-    attrib_->verticesShade.push_back(attrib_->vertices[3 * (vertexIndex)]);
-    attrib_->verticesShade.push_back(attrib_->vertices[3 * (vertexIndex) + 1]);
-    attrib_->verticesShade.push_back(attrib_->vertices[3 * (vertexIndex) + 2]);
+    attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex]);
+    attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 1]);
+    attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 2]);
 
     attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex]);
     attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex + 1]);
 
-    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * (normalIndex)]);
-    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * (normalIndex) + 1]);
-    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * (normalIndex) + 2]);
+    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex]);
+    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 1]);
+    attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 2]);
+
+//    Vertex normal = calculateNormal(
+//        {attrib_->vertices[3 * vIdx1], attrib_->vertices[3 * vIdx1 + 1], attrib_->vertices[3 * vIdx1 + 2]},
+//        {attrib_->vertices[3 * vIdx2], attrib_->vertices[3 * vIdx2 + 1], attrib_->vertices[3 * vIdx2 + 2]},
+//        {attrib_->vertices[3 * vIdx3], attrib_->vertices[3 * vIdx3 + 1], attrib_->vertices[3 * vIdx3 + 2]}
+//    );
+//
+//    attrib_->vertexNormalShade.push_back(normal.x);
+//    attrib_->vertexNormalShade.push_back(normal.y);
+//    attrib_->vertexNormalShade.push_back(normal.z);
+
   }
+
 }
 
 void Parser::processNormal(const Command &command) {
@@ -418,6 +431,27 @@ void Parser::processFace(const Command &command, size_t &f_count,
       }
     }
   }
+}
+
+Vertex Parser::calculateNormal(Vertex v1, Vertex v2, Vertex v3) {
+  // Вычисляем два вектора из трех вершин
+  Vertex vec1 = {v2.x - v1.x, v2.y - v1.y, v2.z - v1.z};
+  Vertex vec2 = {v3.x - v1.x, v3.y - v1.y, v3.z - v1.z};
+
+  // Вычисляем векторное произведение
+  Vertex normal = {
+      vec1.y * vec2.z - vec1.z * vec2.y,
+      vec1.z * vec2.x - vec1.x * vec2.z,
+      vec1.x * vec2.y - vec1.y * vec2.x
+  };
+
+  // Нормализуем вектор
+  float length = sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+  normal.x /= length;
+  normal.y /= length;
+  normal.z /= length;
+
+  return normal;
 }
 
 }  // namespace s21

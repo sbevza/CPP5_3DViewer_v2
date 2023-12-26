@@ -18,6 +18,13 @@ struct VertexIndex {
   int vnIdx;
 };
 
+struct Vertex {
+  float x, y, z;
+
+  Vertex(float xCoord, float yCoord, float zCoord)
+      : x(xCoord), y(yCoord), z(zCoord) {}
+};
+
 struct Attrib {
   unsigned int numVertices;
   unsigned int numFaceNumVerts;
@@ -99,6 +106,7 @@ class Parser {
                                  size_t &pos, int &res);
   void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
                         int &res);
+  Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
 };
 }  // namespace s21
 
