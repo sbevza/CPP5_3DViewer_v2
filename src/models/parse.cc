@@ -4,41 +4,41 @@
 namespace s21 {
 
 void Parser::parseObj(Attrib &attrib, std::string &filename) {
-  err_ = false;
   attrib_ = &attrib;
-  filename_ = filename;
+  err_ = false;
+  attribInit();
   std::vector<char> buf{};
   try {
-    buf = getFileData();
+    buf = getFileData(filename);
   } catch (const std::runtime_error &e) {
     std::cerr << e.what() << '\n';
     err_ = true;
   }
+  std::vector<LineInfo> lineInfos = getLineInfos(buf);
 
-  if (!err_) err_ = buf.empty();
-  attribInit();
-
-  std::vector<LineInfo> lineInfos;
-  size_t lines = getLineInfos(buf, lineInfos);
   std::vector<Command> commands;
-  if (!err_) commands.resize(lines);
   size_t numV = 0;
-  for (size_t i = 0; i < lines && !err_; i++) {
-    int res = 0;
-    std::string line = std::string(
-        buf.begin() + static_cast<std::ptrdiff_t>(lineInfos[i].pos),
-        buf.begin() + static_cast<std::ptrdiff_t>(lineInfos[i].pos) +
-            static_cast<std::ptrdiff_t>(lineInfos[i].len));
-    parseLine(commands[i], line, res);
-    if (res) {
-      if (commands[i].type == CommandType::V) {
-        numV++;
-      }
-    }
+  for (const auto &lineInfo : lineInfos) {
+    processLine(commands, buf, lineInfo, numV);
   }
-  if (!err_) {
+
+  if (!commands.empty()) {
     setAttrib(numV);
     commandToAttrib(commands);
+  }
+}
+
+void Parser::processLine(std::vector<Command> &commands, const std::vector<char> &buf,
+                         const LineInfo &lineInfo, size_t &numV) {
+  std::string line = std::string(buf.begin() + static_cast<std::ptrdiff_t>(lineInfo.pos),
+                                 buf.begin() + static_cast<std::ptrdiff_t>(lineInfo.pos) +
+                                     static_cast<std::ptrdiff_t>(lineInfo.len));
+  Command command;
+  if (parseLine(command, line)) {
+    if (command.type == CommandType::V) {
+      numV++;
+    }
+    commands.push_back(std::move(command));
   }
 }
 
@@ -59,14 +59,14 @@ void Parser::attribInit() {
   uniqueFaceShade_.clear();
 }
 
-std::vector<char> Parser::getFileData() {
-  if (filename_.empty()) {
+std::vector<char> Parser::getFileData(const std::string &filename) {
+  if (filename.empty()) {
     throw std::runtime_error("Error: Invalid filename");
   }
 
-  std::ifstream file(filename_, std::ios::binary);
+  std::ifstream file(filename, std::ios::binary);
   if (!file) {
-    throw std::runtime_error("Failed to open file: " + filename_);
+    throw std::runtime_error("Failed to open file: " + filename);
   }
 
   std::vector<char> buffer((std::istreambuf_iterator<char>(file)),
@@ -79,47 +79,28 @@ std::vector<char> Parser::getFileData() {
   return buffer;
 }
 
-int Parser::isLineEnding(std::vector<char> &ch, size_t i, size_t end_i) {
+int Parser::isLineEnding(const std::vector<char> &ch, size_t i, size_t end_i) {
   return (ch[i] == '\0') || (ch[i] == '\n') ||
       ((ch[i] == '\r') && (((i + 1) < end_i) && (ch[i + 1] != '\n')));
 }
 
-size_t Parser::getLineInfos(std::vector<char> &buf,
-                            std::vector<LineInfo> &lineInfos) {
+std::vector<LineInfo> Parser::getLineInfos(const std::vector<char> &buf) {
+  std::vector<LineInfo> lineInfos;
   size_t endIdx = buf.size();
-  size_t lastLineEnding = 0;
-  size_t lines = 0;
+  size_t lineStart = 0;
 
-  for (size_t i = 0; i < endIdx; i++) {
+  for (size_t i = 0; i < endIdx; ++i) {
     if (isLineEnding(buf, i, endIdx)) {
-      lines++;
-      lastLineEnding = i;
+      lineInfos.emplace_back(LineInfo{lineStart, i - lineStart});
+      lineStart = i + 1;
     }
   }
 
-  if (endIdx - lastLineEnding > 0) {
-    lines++;
+  if (lineStart < endIdx) {
+    lineInfos.emplace_back(LineInfo{lineStart, endIdx - lineStart});
   }
 
-  err_ = (lines == 0);
-  if (!err_) {
-    lineInfos.resize(lines);
-    size_t line_no = 0;
-    size_t prev_pos = 0;
-    for (size_t i = 0; i < endIdx; i++) {
-      if (isLineEnding(buf, i, endIdx)) {
-        lineInfos[line_no].pos = prev_pos;
-        lineInfos[line_no].len = i - prev_pos;
-        prev_pos = i + 1;
-        line_no++;
-      }
-    }
-    if (endIdx - lastLineEnding > 0) {
-      lineInfos[line_no].pos = prev_pos;
-      lineInfos[line_no].len = endIdx - 1 - lastLineEnding;
-    }
-  }
-  return lines;
+  return lineInfos;
 }
 
 void Parser::skipSpace(const std::string &str, size_t &pos) {
@@ -169,8 +150,8 @@ VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
   return vi;
 }
 
-void Parser::parseLine(Command &command, const std::string &line, int &res) {
-  res = 0;
+bool Parser::parseLine(Command &command, const std::string &line) {
+  int res = 0;
   command.type = CommandType::EMPTY;
   size_t pos = 0;
   skipSpace(line, pos);
@@ -184,6 +165,7 @@ void Parser::parseLine(Command &command, const std::string &line, int &res) {
   } else if (line.compare(pos, 2, "f ") == 0 || line.compare(pos, 2, "f\t") == 0) {
     parseFaceCommand(command, line, pos, res);
   }
+  return res;
 }
 
 void Parser::parseVertexCommand(Command &command, const std::string &line, size_t &pos, int &res) {
@@ -266,15 +248,12 @@ bool Parser::hasError() const { return err_; }
 
 void Parser::commandToAttrib(const std::vector<Command> &commands) {
   size_t v_count = 0;
-  float minX = std::numeric_limits<float>::max(), maxX = -std::numeric_limits<float>::max();
-  float minY = std::numeric_limits<float>::max(), maxY = -std::numeric_limits<float>::max();
-  float minZ = std::numeric_limits<float>::max(), maxZ = -std::numeric_limits<float>::max();
+  Bounds bounds;
 
-  calculateBounds(commands, minX, maxX, minY, maxY, minZ, maxZ);
-
-  float centerX = (minX + maxX) / 2.0f;
-  float centerY = (minY + maxY) / 2.0f;
-  float centerZ = (minZ + maxZ) / 2.0f;
+  calculateBounds(commands, bounds);
+  float centerX = (bounds.minX + bounds.maxX) / 2.0f;
+  float centerY = (bounds.minY + bounds.maxY) / 2.0f;
+  float centerZ = (bounds.minZ + bounds.maxZ) / 2.0f;
 
   for (const auto &command : commands) {
     if (command.type == CommandType::V) {
@@ -288,16 +267,27 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
     }
   }
 
-  attrib_->minX = minX - centerX;
-  attrib_->maxX = maxX - centerX;
-  attrib_->minY = minY - centerY;
-  attrib_->maxY = maxY - centerY;
-  attrib_->minZ = minZ - centerZ;
-  attrib_->maxZ = maxZ - centerZ;
+  updateAttribPositions(centerX, centerY, centerZ, bounds);
+
+  calculateShadeModel();
+  recalculateNormals();
+}
+
+void Parser::updateAttribPositions(float centerX, float centerY, float centerZ, Bounds &bounds) {
+  attrib_->minX = bounds.minX - centerX;
+  attrib_->maxX = bounds.maxX - centerX;
+  attrib_->minY = bounds.minY - centerY;
+  attrib_->maxY = bounds.maxY - centerY;
+  attrib_->minZ = bounds.minZ - centerZ;
+  attrib_->maxZ = bounds.maxZ - centerZ;
+
   for (const auto &face : uniqueFace_) {
     attrib_->faces.push_back(face.first);
     attrib_->faces.push_back(face.second);
   }
+}
+
+void Parser::calculateShadeModel() {
   for (const auto &face : uniqueFaceShade_) {
     int vertexIndex, textureIndex, normalIndex;
     std::tie(vertexIndex, textureIndex, normalIndex) = face;
@@ -316,9 +306,10 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
       attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 1]);
       attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 2]);
     }
-
   }
+}
 
+void Parser::recalculateNormals() {
   if (attrib_->vertexNormal.empty()) {
     for (size_t i = 0; i < attrib_->verticesShade.size(); i += 9) {
       Vertex v1 = {attrib_->verticesShade[i], attrib_->verticesShade[i + 1], attrib_->verticesShade[i + 2]};
@@ -347,17 +338,15 @@ void Parser::processTexture(const Command &command) {
   attrib_->vertexTexture.push_back(command.vtV);
 }
 
-void Parser::calculateBounds(const std::vector<Command> &commands, float &minX,
-                             float &maxX, float &minY, float &maxY, float &minZ,
-                             float &maxZ) {
+void Parser::calculateBounds(const std::vector<Command> &commands, Bounds &bounds) {
   for (const auto &command : commands) {
     if (command.type == CommandType::V) {
-      minX = std::min(minX, command.vx);
-      maxX = std::max(maxX, command.vx);
-      minY = std::min(minY, command.vy);
-      maxY = std::max(maxY, command.vy);
-      minZ = std::min(minZ, command.vz);
-      maxZ = std::max(maxZ, command.vz);
+      bounds.minX = std::min(bounds.minX, command.vx);
+      bounds.maxX = std::max(bounds.maxX, command.vx);
+      bounds.minY = std::min(bounds.minY, command.vy);
+      bounds.maxY = std::max(bounds.maxY, command.vy);
+      bounds.minZ = std::min(bounds.minZ, command.vz);
+      bounds.maxZ = std::max(bounds.maxZ, command.vz);
     }
   }
 }

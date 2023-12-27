@@ -9,6 +9,15 @@
 
 namespace s21 {
 
+struct Bounds {
+  float minX = std::numeric_limits<float>::max();
+  float maxX = -std::numeric_limits<float>::max();
+  float minY = std::numeric_limits<float>::max();
+  float maxY = -std::numeric_limits<float>::max();
+  float minZ = std::numeric_limits<float>::max();
+  float maxZ = -std::numeric_limits<float>::max();
+};
+
 struct VertexIndex {
   int vIdx;
   int vtIdx;
@@ -66,18 +75,18 @@ class Parser {
   std::vector<std::tuple<int, int, int>> uniqueFaceShade_;
 
   void commandToAttrib(const std::vector<Command> &commands);
-  std::vector<char> getFileData();
-  static int isLineEnding(std::vector<char> &ch, size_t i, size_t end_i);
-  size_t getLineInfos(std::vector<char> &buf, std::vector<LineInfo> &lineInfos);
+  static std::vector<char> getFileData(const std::string& filename);
+  static int isLineEnding(const std::vector<char> &ch, size_t i, size_t end_i);
+  static std::vector<LineInfo> getLineInfos(const std::vector<char>& buf);
+  static void processLine(std::vector<Command>& commands, const std::vector<char>& buf,
+                           const LineInfo& lineInfo, size_t& numV);
   static void skipSpace(const std::string &str, size_t &pos);
   static float parseDouble(const std::string &str, size_t &pos);
   static VertexIndex parseRawTriple(const std::string &str, size_t &pos);
-  static void parseLine(Command &command, const std::string &line, int &res);
+  static bool parseLine(Command &command, const std::string &line);
   static size_t fixIndex(int idx, size_t num_v);
   void setAttrib(size_t num_v);
-  static void calculateBounds(const std::vector<Command> &commands, float &minX,
-                              float &maxX, float &minY, float &maxY,
-                              float &minZ, float &maxZ);
+  static void calculateBounds(const std::vector<Command> &commands, Bounds &bounds);
   void processVertex(const Command &command, float centerX, float centerY,
                      float centerZ, size_t &v_count);
   void processFace(const Command &command, size_t v_count);
@@ -92,6 +101,9 @@ class Parser {
   static void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
                                int &res);
   static Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
+  void recalculateNormals();
+  void calculateShadeModel();
+  void updateAttribPositions(float centerX, float centerY, float centerZ, Bounds &bounds);
 };
 }  // namespace s21
 
