@@ -1,4 +1,3 @@
-#include <cmath>
 #include "parse.h"
 
 namespace s21 {

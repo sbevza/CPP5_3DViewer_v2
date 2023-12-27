@@ -6,6 +6,7 @@
 #include <iostream>
 #include <set>
 #include <vector>
+#include <cmath>
 
 namespace s21 {
 
@@ -69,7 +70,7 @@ class Parser {
 
  private:
   bool err_{false};
-  std::string filename_;
+//  std::string filename_;
   Attrib *attrib_{nullptr};
   std::set<std::pair<int, int>> uniqueFace_;
   std::vector<std::tuple<int, int, int>> uniqueFaceShade_;
