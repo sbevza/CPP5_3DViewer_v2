@@ -10,8 +10,6 @@
 
 namespace s21 {
 
-constexpr size_t kMaxLineBuffer = 4096;
-
 struct VertexIndex {
   int vIdx;
   int vtIdx;
@@ -26,9 +24,6 @@ struct Vertex {
 };
 
 struct Attrib {
-  unsigned int numVertices;
-  unsigned int numFaceNumVerts;
-
   float minX, maxX;
   float minY, maxY;
   float minZ, maxZ;
@@ -55,11 +50,6 @@ struct Command {
   float vnX, vnY, vnZ;
   std::vector<int> f;
   std::vector<std::tuple<int, int, int>> fShade;
-  std::vector<int> vtIdx;
-  std::vector<int> vnIdx;
-
-  size_t numF;
-  size_t numFaceNumVerts;
   CommandType type;
 };
 
@@ -73,7 +63,6 @@ class Parser {
   bool err_{false};
   std::string filename_;
   Attrib *attrib_{nullptr};
-
   std::set<std::pair<int, int>> uniqueFace_;
   std::vector<std::tuple<int, int, int>> uniqueFaceShade_;
 
@@ -84,9 +73,9 @@ class Parser {
   static void skipSpace(const std::string &str, size_t &pos);
   static float parseDouble(const std::string &str, size_t &pos);
   static VertexIndex parseRawTriple(const std::string &str, size_t &pos);
-  void parseLine(Command &command, const std::string &line, int &res);
+  static void parseLine(Command &command, const std::string &line, int &res);
   static size_t fixIndex(int idx, size_t num_v);
-  void setAttrib(size_t num_v, size_t num_f, size_t num_faces);
+  void setAttrib(size_t num_v);
   static void calculateBounds(const std::vector<Command> &commands, float &minX,
                               float &maxX, float &minY, float &maxY,
                               float &minZ, float &maxZ);

@@ -104,9 +104,9 @@ void MainWindow::on_openFile_clicked() {
       ui_->openGLWidget->update();
       statusBar()->showMessage(
           "Открыли файл: " + fileName + " Количество вершин: " +
-          QString::number(ui_->openGLWidget->data.vertices.size()) +
+          QString::number(ui_->openGLWidget->data.vertices.size() / 3) +
           " Количество граней: " +
-          QString::number(ui_->openGLWidget->data.faces.size()));
+          QString::number(ui_->openGLWidget->data.faces.size() / 2));
     } else {
       statusBar()->showMessage("Ошибка открытия файла");
     }

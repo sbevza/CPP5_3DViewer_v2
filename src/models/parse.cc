@@ -22,9 +22,7 @@ void Parser::parseObj(Attrib &attrib, std::string &filename) {
   size_t lines = getLineInfos(buf, lineInfos);
   std::vector<Command> commands;
   if (!err_) commands.resize(lines);
-  size_t numFaces = 0;
   size_t numV = 0;
-  size_t numF = 0;
   for (size_t i = 0; i < lines && !err_; i++) {
     int res = 0;
     std::string line = std::string(
@@ -32,17 +30,14 @@ void Parser::parseObj(Attrib &attrib, std::string &filename) {
         buf.begin() + static_cast<std::ptrdiff_t>(lineInfos[i].pos) +
             static_cast<std::ptrdiff_t>(lineInfos[i].len));
     parseLine(commands[i], line, res);
-    if (!err_ && res) {
+    if (res) {
       if (commands[i].type == CommandType::V) {
         numV++;
-      } else if (commands[i].type == CommandType::F) {
-        numF += commands[i].numF;
-        numFaces += commands[i].numFaceNumVerts;
       }
     }
   }
   if (!err_) {
-    setAttrib(numV, numF, numFaces);
+    setAttrib(numV);
     commandToAttrib(commands);
   }
 }
@@ -54,8 +49,6 @@ void Parser::attribInit() {
   attrib_->vertexNormal.clear();
   attrib_->vertexNormalShade.clear();
   attrib_->faces.clear();
-  attrib_->numVertices = 0;
-  attrib_->numFaceNumVerts = 0;
   attrib_->minX = FLT_MAX;
   attrib_->maxX = -FLT_MAX;
   attrib_->minY = FLT_MAX;
@@ -178,22 +171,18 @@ VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
 
 void Parser::parseLine(Command &command, const std::string &line, int &res) {
   res = 0;
-  if (line.size() >= kMaxLineBuffer) {
-    err_ = true;
-  } else {
-    command.type = CommandType::EMPTY;
-    size_t pos = 0;
-    skipSpace(line, pos);
+  command.type = CommandType::EMPTY;
+  size_t pos = 0;
+  skipSpace(line, pos);
 
-    if (line.compare(pos, 2, "v ") == 0 || line.compare(pos, 2, "v\t") == 0) {
-      parseVertexCommand(command, line, pos, res);
-    } else if (line.compare(pos, 3, "vt ") == 0 || line.compare(pos, 3, "vt\t") == 0) {
-      parseTextureCommand(command, line, pos, res);
-    } else if (line.compare(pos, 3, "vn ") == 0 || line.compare(pos, 3, "vn\t") == 0) {
-      parseNormalCommand(command, line, pos, res);
-    } else if (line.compare(pos, 2, "f ") == 0 || line.compare(pos, 2, "f\t") == 0) {
-      parseFaceCommand(command, line, pos, res);
-    }
+  if (line.compare(pos, 2, "v ") == 0 || line.compare(pos, 2, "v\t") == 0) {
+    parseVertexCommand(command, line, pos, res);
+  } else if (line.compare(pos, 3, "vt ") == 0 || line.compare(pos, 3, "vt\t") == 0) {
+    parseTextureCommand(command, line, pos, res);
+  } else if (line.compare(pos, 3, "vn ") == 0 || line.compare(pos, 3, "vn\t") == 0) {
+    parseNormalCommand(command, line, pos, res);
+  } else if (line.compare(pos, 2, "f ") == 0 || line.compare(pos, 2, "f\t") == 0) {
+    parseFaceCommand(command, line, pos, res);
   }
 }
 
@@ -238,23 +227,19 @@ void Parser::parseFaceCommand(Command &command, const std::string &line, size_t 
   command.type = CommandType::F;
 
   VertexIndex i0 = f[0];
-  VertexIndex i1{};
+  VertexIndex i1 = {0, 0, 0};
   VertexIndex i2 = f[1];
   for (size_t k = 2; k < num_f; k++) {
     i1 = i2;
     i2 = f[k];
-    command.fShade.push_back({i0.vIdx, i0.vtIdx, i0.vnIdx});
-    command.fShade.push_back({i1.vIdx, i1.vtIdx, i1.vnIdx});
-    command.fShade.push_back({i2.vIdx, i2.vtIdx, i2.vnIdx});
+    command.fShade.emplace_back(i0.vIdx, i0.vtIdx, i0.vnIdx);
+    command.fShade.emplace_back(i1.vIdx, i1.vtIdx, i1.vnIdx);
+    command.fShade.emplace_back(i2.vIdx, i2.vtIdx, i2.vnIdx);
   }
 
   for (size_t k = 0; k < num_f; k++) {
     command.f.push_back(f[k].vIdx);
-    command.vtIdx.push_back(f[k].vtIdx);
-    command.vnIdx.push_back(f[k].vnIdx);
   }
-  command.numF = num_f;
-  command.numFaceNumVerts = 1;
   res = 1;
 }
 
@@ -269,10 +254,8 @@ size_t Parser::fixIndex(int idx, size_t num_v) {
   return ret;
 }
 
-void Parser::setAttrib(size_t num_v, size_t num_f, size_t num_faces) {
+void Parser::setAttrib(size_t num_v) {
   if (num_v) {
-    attrib_->numVertices = static_cast<unsigned int>(num_v);
-    attrib_->numFaceNumVerts = static_cast<unsigned int>(num_faces);
     attrib_->vertices = std::vector<float>(num_v * 3);
   } else {
     err_ = true;
@@ -306,7 +289,6 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
     }
   }
 
-  attrib_->numVertices = v_count;
   attrib_->minX = minX - centerX;
   attrib_->maxX = maxX - centerX;
   attrib_->minY = minY - centerY;
@@ -353,7 +335,6 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
       }
     }
   }
-
 }
 
 void Parser::processNormal(const Command &command) {
@@ -417,9 +398,9 @@ void Parser::processFace(const Command &command, size_t &f_count,
 
     if (!command.fShade.empty()) {
       for (auto f : command.fShade) {
-        uniqueFaceShade_.push_back({fixIndex(std::get<0>(f), v_count),
-                                    fixIndex(std::get<1>(f), v_count),
-                                    fixIndex(std::get<2>(f), v_count)});
+        uniqueFaceShade_.emplace_back(fixIndex(std::get<0>(f), v_count),
+                                      fixIndex(std::get<1>(f), v_count),
+                                      fixIndex(std::get<2>(f), v_count));
       }
     }
   }
