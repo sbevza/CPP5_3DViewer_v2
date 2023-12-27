@@ -1,7 +1,6 @@
 #ifndef CPP4_3DVIEWER_V2_0_SRC_MODELS_PARSE_H_
 #define CPP4_3DVIEWER_V2_0_SRC_MODELS_PARSE_H_
 
-#include <cfloat>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -81,7 +80,7 @@ class Parser {
                               float &minZ, float &maxZ);
   void processVertex(const Command &command, float centerX, float centerY,
                      float centerZ, size_t &v_count);
-  void processFace(const Command &command, size_t &f_count, size_t v_count);
+  void processFace(const Command &command, size_t v_count);
   void processTexture(const Command &command);
   void processNormal(const Command &command);
   static void parseVertexCommand(Command &command, const std::string &line,
@@ -91,7 +90,7 @@ class Parser {
   static void parseNormalCommand(Command &command, const std::string &line,
                                  size_t &pos, int &res);
   static void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
-                        int &res);
+                               int &res);
   static Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
 };
 }  // namespace s21

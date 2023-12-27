@@ -49,12 +49,12 @@ void Parser::attribInit() {
   attrib_->vertexNormal.clear();
   attrib_->vertexNormalShade.clear();
   attrib_->faces.clear();
-  attrib_->minX = FLT_MAX;
-  attrib_->maxX = -FLT_MAX;
-  attrib_->minY = FLT_MAX;
-  attrib_->maxY = -FLT_MAX;
-  attrib_->minZ = FLT_MAX;
-  attrib_->maxZ = -FLT_MAX;
+  attrib_->minX = std::numeric_limits<float>::max();
+  attrib_->maxX = -std::numeric_limits<float>::max();
+  attrib_->minY = std::numeric_limits<float>::max();
+  attrib_->maxY = -std::numeric_limits<float>::max();
+  attrib_->minZ = std::numeric_limits<float>::max();
+  attrib_->maxZ = -std::numeric_limits<float>::max();
   uniqueFace_.clear();
   uniqueFaceShade_.clear();
 }
@@ -266,10 +266,9 @@ bool Parser::hasError() const { return err_; }
 
 void Parser::commandToAttrib(const std::vector<Command> &commands) {
   size_t v_count = 0;
-  size_t f_count = 0;
-  float minX = FLT_MAX, maxX = -FLT_MAX;
-  float minY = FLT_MAX, maxY = -FLT_MAX;
-  float minZ = FLT_MAX, maxZ = -FLT_MAX;
+  float minX = std::numeric_limits<float>::max(), maxX = -std::numeric_limits<float>::max();
+  float minY = std::numeric_limits<float>::max(), maxY = -std::numeric_limits<float>::max();
+  float minZ = std::numeric_limits<float>::max(), maxZ = -std::numeric_limits<float>::max();
 
   calculateBounds(commands, minX, maxX, minY, maxY, minZ, maxZ);
 
@@ -281,7 +280,7 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
     if (command.type == CommandType::V) {
       processVertex(command, centerX, centerY, centerZ, v_count);
     } else if (command.type == CommandType::F) {
-      processFace(command, f_count, v_count);
+      processFace(command, v_count);
     } else if (command.type == CommandType::VT) {
       processTexture(command);
     } else if (command.type == CommandType::VN) {
@@ -371,30 +370,21 @@ void Parser::processVertex(const Command &command, float centerX, float centerY,
   v_count++;
 }
 
-void Parser::processFace(const Command &command, size_t &f_count,
-                         size_t v_count) {
-
+void Parser::processFace(const Command &command, size_t v_count) {
   if (!command.f.empty()) {
     size_t k = 0;
     size_t previous_v_idx = fixIndex(command.f[k++], v_count);
     for (; k < command.f.size(); ++k) {
       size_t v_idx = fixIndex(command.f[k], v_count);
-      auto result
-          = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx),
-                                              std::max(previous_v_idx, v_idx)));
+      uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx),
+                                        std::max(previous_v_idx, v_idx)));
 
-      if (result.second) {
-        f_count += 2;
-      }
       previous_v_idx = v_idx;
     }
 
     // Замыкание грани
     size_t v_idx = fixIndex(command.f[0], v_count);
-    auto result = uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
-    if (result.second) {
-      f_count += 2;
-    }
+    uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
 
     if (!command.fShade.empty()) {
       for (auto f : command.fShade) {
