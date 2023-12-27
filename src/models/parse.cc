@@ -59,11 +59,12 @@ void Parser::attribInit() {
 }
 
 std::vector<char> Parser::getFileData(const std::string &filename) {
-  if (filename.empty()) {
+  std::filesystem::path filePath(filename);
+  if (!std::filesystem::exists(filePath)) {
     throw std::runtime_error("Error: Invalid filename");
   }
 
-  std::ifstream file(filename, std::ios::binary);
+  std::ifstream file(filePath, std::ios::binary);
   if (!file) {
     throw std::runtime_error("Failed to open file: " + filename);
   }
@@ -287,10 +288,7 @@ void Parser::updateAttribPositions(float centerX, float centerY, float centerZ, 
 }
 
 void Parser::calculateShadeModel() {
-  for (const auto &face : uniqueFaceShade_) {
-    int vertexIndex, textureIndex, normalIndex;
-    std::tie(vertexIndex, textureIndex, normalIndex) = face;
-
+  for (const auto& [vertexIndex, textureIndex, normalIndex] : uniqueFaceShade_) {
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex]);
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 1]);
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 2]);
@@ -375,7 +373,7 @@ void Parser::processFace(const Command &command, size_t v_count) {
     uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
 
     if (!command.fShade.empty()) {
-      for (auto f : command.fShade) {
+      for (auto &f : command.fShade) {
         uniqueFaceShade_.emplace_back(fixIndex(std::get<0>(f), v_count),
                                       fixIndex(std::get<1>(f), v_count),
                                       fixIndex(std::get<2>(f), v_count));
