@@ -35,7 +35,7 @@ private:
   WidgetData widgetdata;
 
   void loadBGColor();
-  void setScale();
+  void setScale() const;
 
   void mousePressEvent(QMouseEvent *) override;
   void mouseMoveEvent(QMouseEvent *) override;
@@ -48,12 +48,12 @@ private:
   void setEDGEType();
   void setPerspectiveProjection();
   void setOrthographicProjection();
-  void setTypeViews();
+  void setTypeViews() const;
   void paintWireFrame();
   void typeViewsModel();
   void paintShading();
   void loadTexture();
-  void rotateModel();
+  void rotateModel() const;
 
   GLfloat calculateAspect();
   [[nodiscard]] std::tuple<float, float, float> calculateModelDimensions() const;

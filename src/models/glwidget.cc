@@ -33,7 +33,7 @@ void glWidget::paintGL() {
     loadBGColor();
 }
 
-void glWidget::rotateModel() {
+void glWidget::rotateModel() const {
   glRotatef(widgetdata.RotX_, 1.0f, 0.0f, 0.0f);
   glRotatef(widgetdata.RotY_, 0.0f, 1.0f, 0.0f);
   glRotatef(widgetdata.RotZ_, 0.0f, 0.0f, 1.0f);
@@ -56,8 +56,8 @@ void glWidget::mouseMoveEvent(QMouseEvent *ma) {
     GLfloat dx = static_cast<GLfloat>(ma->pos().x() - widgetdata.mPos_.x());
     GLfloat dy = static_cast<GLfloat>(ma->pos().y() - widgetdata.mPos_.y());
 
-    widgetdata.RotX_ += 1 / M_PI * dy;
-    widgetdata.RotY_ += 1 / M_PI * dx;
+    widgetdata.RotX_ += static_cast<GLfloat>(1.0f / M_PI * dy);
+    widgetdata.RotY_ += static_cast<GLfloat>(1.0f / M_PI * dx);
 
     widgetdata.mPos_ = ma->pos();
   }
@@ -90,7 +90,7 @@ void glWidget::setPerspectiveProjection() {
   GLfloat farPlane = 5500.0f;
   GLfloat fov = 60.0f;
 
-  GLfloat top = nearPlane * static_cast<float>(tanf(fov * M_PI / 360.0));
+  GLfloat top = nearPlane * tanf(static_cast<float>(fov * M_PI / 360.0));
   GLfloat right = top * aspect;
 
   glFrustum(-right, right, -top, top, nearPlane, farPlane);
@@ -137,7 +137,7 @@ void glWidget::setTypeLine() {
 }
 
 void glWidget::setEDGEType() {
-  glPointSize(widgetdata.EDGEThick_ * 1.5);
+  glPointSize(widgetdata.EDGEThick_ * 1.5f);
 
   if (widgetdata.EDGEType_) {
     if (widgetdata.EDGEType_ == 1)
@@ -146,7 +146,7 @@ void glWidget::setEDGEType() {
       glDisable(GL_POINT_SMOOTH);
     glColor3f(widgetdata.EDGEColor_.redF(), widgetdata.EDGEColor_.greenF(),
               widgetdata.EDGEColor_.blueF());
-    glDrawElements(GL_POINTS, data.faces.size(), GL_UNSIGNED_INT,
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(data.faces.size()), GL_UNSIGNED_INT,
                    data.faces.data());
   }
 }
@@ -160,18 +160,18 @@ void glWidget::loadBGColor() {
   }
 }
 
-void glWidget::setScale() {
+void glWidget::setScale() const {
   float baseScale = 1;
 
   if (widgetdata.Scale_ > 0) {
-    baseScale *= widgetdata.Scale_ * 1.1;
+    baseScale *= static_cast<float>(widgetdata.Scale_ * 1.1);
   } else if (widgetdata.Scale_ < 0) {
-    baseScale = 1 / (widgetdata.Scale_ * -1.1);
+    baseScale = static_cast<float>(1.0 / (widgetdata.Scale_ * -1.1));
   }
   glScalef(baseScale, baseScale, baseScale);
 }
 
-void glWidget::setTypeViews() {
+void glWidget::setTypeViews() const {
   if (widgetdata.ViewType_ == 1) {
     glShadeModel(GL_FLAT);
   }
@@ -192,7 +192,7 @@ void glWidget::paintWireFrame() {
   glLineWidth(widgetdata.LineThick_);
 
   glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
-  glDrawElements(GL_LINES, data.faces.size(), GL_UNSIGNED_INT, data.faces.data());
+  glDrawElements(GL_LINES, static_cast<GLsizei>(data.faces.size()), GL_UNSIGNED_INT, data.faces.data());
   setEDGEType();
 }
 
@@ -214,7 +214,7 @@ void glWidget::paintShading() {
   glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTextureShade.data());
   glNormalPointer(GL_FLOAT, 0, data.vertexNormalShade.data());
 
-  glDrawArrays(GL_TRIANGLES, 0, data.verticesShade.size() / 3);
+  glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(data.verticesShade.size() / 3));
 
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
