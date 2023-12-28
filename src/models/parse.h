@@ -70,7 +70,6 @@ class Parser {
 
  private:
   bool err_{false};
-//  std::string filename_;
   Attrib *attrib_{nullptr};
   std::set<std::pair<int, int>> uniqueFace_;
   std::vector<std::tuple<int, int, int>> uniqueFaceShade_;
@@ -81,8 +80,6 @@ class Parser {
   static std::vector<LineInfo> getLineInfos(const std::vector<char>& buf);
   static void processLine(std::vector<Command>& commands, const std::vector<char>& buf,
                            const LineInfo& lineInfo, size_t& numV);
-  static void skipSpace(const std::string &str, size_t &pos);
-  static float parseDouble(const std::string &str, size_t &pos);
   static VertexIndex parseRawTriple(const std::string &str, size_t &pos);
   static bool parseLine(Command &command, const std::string &line);
   static size_t fixIndex(int idx, size_t num_v);
@@ -93,14 +90,7 @@ class Parser {
   void processFace(const Command &command, size_t v_count);
   void processTexture(const Command &command);
   void processNormal(const Command &command);
-  static void parseVertexCommand(Command &command, const std::string &line,
-                                 size_t &pos, int &res);
-  static void parseTextureCommand(Command &command, const std::string &line,
-                                  size_t &pos, int &res);
-  static void parseNormalCommand(Command &command, const std::string &line,
-                                 size_t &pos, int &res);
-  static void parseFaceCommand(Command &command, const std::string &line, size_t &pos,
-                               int &res);
+  static void parseFaceCommand(Command &command, std::istringstream &iss);
   static Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
   void recalculateNormals();
   void calculateShadeModel();
