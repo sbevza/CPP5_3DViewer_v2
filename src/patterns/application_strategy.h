@@ -3,6 +3,8 @@
 
 #include "../views/gif.h"
 #include "views/mainwindow.h"
+#include "../models/parse.h"
+
 
 enum strategy { makeImage = 0, makeGif, makeUV };
 
@@ -42,6 +44,8 @@ class StrategyUV : public Strategy {
 
  private:
   Ui::MainWindow *ui_;
+
+
 };
 
 class MediaMaker {

@@ -71,10 +71,9 @@ public:
     widgetdata.*member = value;
   }
 
-  s21::Attrib data = {0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}};
+  s21::Attrib data = {0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {}};
 
   void SetCenterModel();
-  void ButtonLightAllFunc();
   void setLight();
 };
 } // namespace s21
