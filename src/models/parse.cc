@@ -45,6 +45,7 @@ void Parser::attribInit() {
   attrib_->vertices.clear();
   attrib_->verticesShade.clear();
   attrib_->vertexTexture.clear();
+  attrib_->vertexTextureShade.clear();
   attrib_->vertexNormal.clear();
   attrib_->vertexNormalShade.clear();
   attrib_->faces.clear();
