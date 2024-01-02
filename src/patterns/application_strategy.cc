@@ -67,29 +67,36 @@ void StrategyGif::make(QString filename) {
 void StrategyUV::make(QString filename) {
   QImage tex = ui_->openGLWidget->getMember(&s21::WidgetData::Texture_);
   QPainter painter(&tex);
-painter.setPen(
-    QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_), 1, Qt::SolidLine));
+  painter.setPen(QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_), 1, Qt::SolidLine));
 
+  const std::vector<float> &vec = ui_->openGLWidget->data.vertexTextureShade;
 
-std::vector<float> vec = ui_->openGLWidget->data.vertexTextureShade;
-std::vector<unsigned int> ind = ui_->openGLWidget->data.faces;
-qDebug() << "vec size:" << vec.size();
-qDebug() << "ind size:" << ind.size();
-  size_t size = ui_->openGLWidget->data.vertexTexture.size() / 3;
-  for (size_t i = 0; i < size; i += 2) {
-        qDebug() << "Drawing line:" << i;
+  // Предполагая, что каждые 6 значений (3 пары UV) формируют треугольник
+  for (size_t i = 0; i < vec.size(); i += 6) {
+    // Координаты первой вершины
+    float u1 = vec[i], v1 = vec[i + 1];
+    // Координаты второй вершины
+    float u2 = vec[i + 2], v2 = vec[i + 3];
+    // Координаты третьей вершины
+    float u3 = vec[i + 4], v3 = vec[i + 5];
 
-    painter.drawLine(tex.width() * vec.at(2 * ind.at(i)),
-                     tex.height() * vec.at(2 * ind.at(i) + 1),
-                     tex.width() * vec.at(2 * ind.at(i + 1)),
-                     tex.height() * vec.at(2 * ind.at(i + 1) + 1));
+    // Рисуем линии, замыкающие треугольник
+    painter.drawLine(tex.width() * u1, tex.height() * v1,
+                     tex.width() * u2, tex.height() * v2);
+    painter.drawLine(tex.width() * u2, tex.height() * v2,
+                     tex.width() * u3, tex.height() * v3);
+    painter.drawLine(tex.width() * u3, tex.height() * v3,
+                     tex.width() * u1, tex.height() * v1);
   }
 
-  if (!filename.isEmpty()) {
-    tex.save(filename);
+  if (!filename.isEmpty() && tex.save(filename)) {
     ui_->statusbar->showMessage("UV создана и лежит в папке:" + filename);
+  } else {
+    ui_->statusbar->showMessage("Ошибка при сохранении UV карты.");
   }
 }
+
+
 
 MediaMaker::~MediaMaker() { delete media_; }
 

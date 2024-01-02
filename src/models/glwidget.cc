@@ -261,12 +261,20 @@ void glWidget::loadTexture() {
 
 void glWidget::setLight() {
   GLfloat lightPosition[4] = {widgetdata.posLight_X, widgetdata.posLight_Y,
-                              widgetdata.posLight_Z, 1.0f};
+                              widgetdata.posLight_Z, 0.0f};
   GLfloat lightColor[4] = {widgetdata.light_R, widgetdata.light_G,
                            widgetdata.light_B, 1.0f}; // 1.0f для альфа-канала
 
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, lightColor);
+//  glLightfv(GL_LIGHT0, GL_AMBIENT, lightColor);
+
+  // Установка рассеянного света
+  GLfloat diffuseColor[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
+
+  // Установка зеркального света
+//  GLfloat specularColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//  glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
 }
 
 } // namespace s21
