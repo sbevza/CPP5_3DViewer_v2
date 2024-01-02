@@ -71,16 +71,11 @@ void StrategyUV::make(QString filename) {
 
   const std::vector<float> &vec = ui_->openGLWidget->data.vertexTextureShade;
 
-  // Предполагая, что каждые 6 значений (3 пары UV) формируют треугольник
   for (size_t i = 0; i < vec.size(); i += 6) {
-    // Координаты первой вершины
     float u1 = vec[i], v1 = vec[i + 1];
-    // Координаты второй вершины
     float u2 = vec[i + 2], v2 = vec[i + 3];
-    // Координаты третьей вершины
     float u3 = vec[i + 4], v3 = vec[i + 5];
 
-    // Рисуем линии, замыкающие треугольник
     painter.drawLine(tex.width() * u1, tex.height() * v1,
                      tex.width() * u2, tex.height() * v2);
     painter.drawLine(tex.width() * u2, tex.height() * v2,
