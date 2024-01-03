@@ -30,8 +30,27 @@ struct WidgetData {
 };
 
 class glWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+ public:
+  explicit glWidget(QWidget *parent = nullptr);
 
-private:
+  // Универсальный геттер
+  template <typename T>
+  const T &getMember(T WidgetData::*member) const {
+    return widgetdata.*member;
+  }
+
+  // Универсальный сеттер
+  template <typename T>
+  void setMember(T WidgetData::*member, const T &value) {
+    widgetdata.*member = value;
+  }
+
+  s21::Attrib data = {0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {}};
+
+  void SetCenterModel();
+  void setLight();
+
+ private:
   WidgetData widgetdata;
 
   void loadBGColor();
@@ -56,26 +75,9 @@ private:
   void rotateModel() const;
 
   GLfloat calculateAspect();
-  [[nodiscard]] std::tuple<float, float, float> calculateModelDimensions() const;
-
-public:
-  explicit glWidget(QWidget *parent = nullptr);
-
-  // Универсальный геттер
-  template <typename T> const T &getMember(T WidgetData::*member) const {
-    return widgetdata.*member;
-  }
-
-  // Универсальный сеттер
-  template <typename T> void setMember(T WidgetData::*member, const T &value) {
-    widgetdata.*member = value;
-  }
-
-  s21::Attrib data = {0, 0, 0, 0, 0, 0, {}, {}, {}, {}, {}, {}, {}};
-
-  void SetCenterModel();
-  void setLight();
+  [[nodiscard]] std::tuple<float, float, float> calculateModelDimensions()
+      const;
 };
-} // namespace s21
+}  // namespace s21
 
-#endif // CPP4_3DVIEWER_V2_0_SRC_MODELS_GLWIDGET_H_
+#endif  // CPP4_3DVIEWER_V2_0_SRC_MODELS_GLWIDGET_H_

@@ -30,7 +30,6 @@ void StrategyGif::make(QString filename) {
   Gif::GifWriter gifWriter = {};
   int targetWidth = 640;
   int targetHeight = 480;
-  // Извлекаем путь к папке без названия файла и расширения
   QFileInfo fileInfo(filename);
   QDir dir = fileInfo.absoluteDir();
   QString gifFolderPath = dir.absolutePath() + "/gif/";
@@ -67,7 +66,9 @@ void StrategyGif::make(QString filename) {
 void StrategyUV::make(QString filename) {
   QImage tex = ui_->openGLWidget->getMember(&s21::WidgetData::Texture_);
   QPainter painter(&tex);
-  painter.setPen(QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_), 1, Qt::SolidLine));
+  painter.setPen(
+      QPen(ui_->openGLWidget->getMember(&s21::WidgetData::LineColor_), 1,
+           Qt::SolidLine));
 
   const std::vector<float> &vec = ui_->openGLWidget->data.vertexTextureShade;
 
@@ -76,22 +77,21 @@ void StrategyUV::make(QString filename) {
     float u2 = vec[i + 2], v2 = vec[i + 3];
     float u3 = vec[i + 4], v3 = vec[i + 5];
 
-    painter.drawLine(tex.width() * u1, tex.height() * v1,
-                     tex.width() * u2, tex.height() * v2);
-    painter.drawLine(tex.width() * u2, tex.height() * v2,
-                     tex.width() * u3, tex.height() * v3);
-    painter.drawLine(tex.width() * u3, tex.height() * v3,
-                     tex.width() * u1, tex.height() * v1);
+    painter.drawLine(tex.width() * u1, tex.height() * v1, tex.width() * u2,
+                     tex.height() * v2);
+    painter.drawLine(tex.width() * u2, tex.height() * v2, tex.width() * u3,
+                     tex.height() * v3);
+    painter.drawLine(tex.width() * u3, tex.height() * v3, tex.width() * u1,
+                     tex.height() * v1);
   }
 
   if (!filename.isEmpty() && tex.save(filename)) {
     ui_->statusbar->showMessage("UV создана и лежит в папке:" + filename);
-  } else {
+    tex.fill(Qt::white);
+
+  } else
     ui_->statusbar->showMessage("Ошибка при сохранении UV карты.");
-  }
 }
-
-
 
 MediaMaker::~MediaMaker() { delete media_; }
 
@@ -100,13 +100,12 @@ void MediaMaker::MakeMedia(QString filename) {
 }
 
 void MediaMaker::SetMedia(strategy strategyType, Ui::MainWindow *ui) {
-  if (strategyType == makeImage) {
+  if (strategyType == makeImage)
     media_ = new StrategyImage(ui);
-  } else if (strategyType == makeGif) {
+  else if (strategyType == makeGif)
     media_ = new StrategyGif(ui);
-  } else if (strategyType == makeUV) {
+  else if (strategyType == makeUV)
     media_ = new StrategyUV(ui);
-  }
 }
 
 }  // namespace s21

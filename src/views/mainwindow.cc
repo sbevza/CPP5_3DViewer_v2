@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(s21::Controller *controller, QWidget *parent)
-    : QMainWindow(parent), ui_(new Ui::MainWindow),
-      settings_("School_21", "3D_Viewer_2.0"), controller_(controller) {
+    : QMainWindow(parent),
+      ui_(new Ui::MainWindow),
+      settings_("School_21", "3D_Viewer_2.0"),
+      controller_(controller) {
   ui_->setupUi(this);
 
   QIcon icon(":/icon.png");
@@ -136,18 +138,12 @@ void MainWindow::on_Gif_clicked() {
       s21::MediaMaker mediaMaker;
       mediaMaker.SetMedia(makeGif, ui_);
 
-      if (ui_->TypeGif_box->currentIndex() == 1) {
-        rotateModelOverTime("RotX");
-        // mediaMaker.MakeMedia(filePath);
-      }
-      if (ui_->TypeGif_box->currentIndex() == 2) {
-        rotateModelOverTime("RotY");
-        // mediaMaker.MakeMedia(filePath);
-      }
-      if (ui_->TypeGif_box->currentIndex() == 3) {
-        rotateModelOverTime("RotZ");
-        // mediaMaker.MakeMedia(filePath);
-      }
+      if (ui_->TypeGif_box->currentIndex() == 1) rotateModelOverTime("RotX");
+
+      if (ui_->TypeGif_box->currentIndex() == 2) rotateModelOverTime("RotY");
+
+      if (ui_->TypeGif_box->currentIndex() == 3) rotateModelOverTime("RotZ");
+
       mediaMaker.MakeMedia(filePath);
     }
   }
@@ -275,8 +271,7 @@ void MainWindow::rotateModelOverTime(QString rotationAxis) {
     if (rotationAxis == "RotZ")
       ui_->openGLWidget->setMember(&s21::WidgetData::RotZ_, i++);
     ui_->openGLWidget->update();
-    if (i == 360)
-      timer->stop();
+    if (i == 360) timer->stop();
   });
   timer->start(16);
 }
@@ -340,14 +335,18 @@ void MainWindow::on_ViewType_box_currentIndexChanged(int index) {
 }
 
 void MainWindow::on_Light_button_clicked() {
-ui_->openGLWidget->setMember(&s21::WidgetData::posLight_X, ui_->X_light_line->text().toFloat());
-ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Y, ui_->Y_light_line->text().toFloat());
-ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Z, ui_->Z_light_line->text().toFloat());
-ui_->openGLWidget->setMember(&s21::WidgetData::light_R, ui_->R_line->text().toFloat());
-ui_->openGLWidget->setMember(&s21::WidgetData::light_G, ui_->G_line->text().toFloat());
-ui_->openGLWidget->setMember(&s21::WidgetData::light_B, ui_->B_line->text().toFloat());
+  ui_->openGLWidget->setMember(&s21::WidgetData::posLight_X,
+                               ui_->X_light_line->text().toFloat());
+  ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Y,
+                               ui_->Y_light_line->text().toFloat());
+  ui_->openGLWidget->setMember(&s21::WidgetData::posLight_Z,
+                               ui_->Z_light_line->text().toFloat());
+  ui_->openGLWidget->setMember(&s21::WidgetData::light_R,
+                               ui_->R_line->text().toFloat());
+  ui_->openGLWidget->setMember(&s21::WidgetData::light_G,
+                               ui_->G_line->text().toFloat());
+  ui_->openGLWidget->setMember(&s21::WidgetData::light_B,
+                               ui_->B_line->text().toFloat());
 
-
-
-ui_->openGLWidget->update();  
+  ui_->openGLWidget->update();
 }

@@ -66,8 +66,7 @@ void glWidget::mouseMoveEvent(QMouseEvent *ma) {
 
 void glWidget::wheelEvent(QWheelEvent *event) {
   int delta = event->angleDelta().y();
-  if (widgetdata.Scale_ == 0)
-    widgetdata.Scale_ = 1;
+  if (widgetdata.Scale_ == 0) widgetdata.Scale_ = 1;
   if (delta > 0)
     widgetdata.Scale_ *= 1.1;
   else if (delta < 0)
@@ -78,10 +77,8 @@ void glWidget::projectionChange() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  if (widgetdata.ProjectionType_ == 0)
-    setPerspectiveProjection();
-  if (widgetdata.ProjectionType_ == 1)
-    setOrthographicProjection();
+  if (widgetdata.ProjectionType_ == 0) setPerspectiveProjection();
+  if (widgetdata.ProjectionType_ == 1) setOrthographicProjection();
 }
 
 void glWidget::setPerspectiveProjection() {
@@ -140,14 +137,12 @@ void glWidget::setEDGEType() {
   glPointSize(widgetdata.EDGEThick_ * 1.5f);
 
   if (widgetdata.EDGEType_) {
-    if (widgetdata.EDGEType_ == 1)
-      glEnable(GL_POINT_SMOOTH);
-    if (widgetdata.EDGEType_ == 2)
-      glDisable(GL_POINT_SMOOTH);
+    if (widgetdata.EDGEType_ == 1) glEnable(GL_POINT_SMOOTH);
+    if (widgetdata.EDGEType_ == 2) glDisable(GL_POINT_SMOOTH);
     glColor3f(widgetdata.EDGEColor_.redF(), widgetdata.EDGEColor_.greenF(),
               widgetdata.EDGEColor_.blueF());
-    glDrawElements(GL_POINTS, static_cast<GLsizei>(data.faces.size()), GL_UNSIGNED_INT,
-                   data.faces.data());
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(data.faces.size()),
+                   GL_UNSIGNED_INT, data.faces.data());
   }
 }
 
@@ -163,36 +158,35 @@ void glWidget::loadBGColor() {
 void glWidget::setScale() const {
   float baseScale = 1;
 
-  if (widgetdata.Scale_ > 0) {
+  if (widgetdata.Scale_ > 0)
     baseScale *= static_cast<float>(widgetdata.Scale_ * 1.1);
-  } else if (widgetdata.Scale_ < 0) {
+  else if (widgetdata.Scale_ < 0)
     baseScale = static_cast<float>(1.0 / (widgetdata.Scale_ * -1.1));
-  }
+
   glScalef(baseScale, baseScale, baseScale);
 }
 
 void glWidget::setTypeViews() const {
-  if (widgetdata.ViewType_ == 1) {
-    glShadeModel(GL_FLAT);
-  }
-  if (widgetdata.ViewType_ == 2) {
-    glShadeModel(GL_SMOOTH);
-  }
+  if (widgetdata.ViewType_ == 1) glShadeModel(GL_FLAT);
+  if (widgetdata.ViewType_ == 2) glShadeModel(GL_SMOOTH);
 }
 
 void glWidget::typeViewsModel() {
-  if (widgetdata.ViewType_ == 0) {
+  if (widgetdata.ViewType_ == 0)
     paintWireFrame();
-  } else
+  else
     paintShading();
 }
 
 void glWidget::paintWireFrame() {
+  glEnableClientState(GL_VERTEX_ARRAY);
+
   setTypeLine();
   glLineWidth(widgetdata.LineThick_);
 
-  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data()); //каркасный рисунок
-  glDrawElements(GL_LINES, static_cast<GLsizei>(data.faces.size()), GL_UNSIGNED_INT, data.faces.data());
+  glVertexPointer(3, GL_FLOAT, 0, data.vertices.data());  // каркасный рисунок
+  glDrawElements(GL_LINES, static_cast<GLsizei>(data.faces.size()),
+                 GL_UNSIGNED_INT, data.faces.data());
   setEDGEType();
 }
 
@@ -214,7 +208,8 @@ void glWidget::paintShading() {
   glTexCoordPointer(2, GL_FLOAT, 0, data.vertexTextureShade.data());
   glNormalPointer(GL_FLOAT, 0, data.vertexNormalShade.data());
 
-  glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(data.verticesShade.size() / 3));
+  glDrawArrays(GL_TRIANGLES, 0,
+               static_cast<GLsizei>(data.verticesShade.size() / 3));
 
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -233,12 +228,8 @@ void glWidget::SetCenterModel() {
   widgetdata.RotY_ = 0;
   widgetdata.RotZ_ = 0;
 
-  // Вычисляем размер модели по X и Y
   float modelWidth = data.maxX - data.minX;
   float modelHeight = data.maxY - data.minY;
-
-  // Вычисляем смещение камеры по Z,
-  // чтобы уместить модель по X и Y
   float zOffset = modelWidth + modelHeight;
 
   widgetdata.PosX_ = 0;
@@ -263,18 +254,10 @@ void glWidget::setLight() {
   GLfloat lightPosition[4] = {widgetdata.posLight_X, widgetdata.posLight_Y,
                               widgetdata.posLight_Z, 0.0f};
   GLfloat lightColor[4] = {widgetdata.light_R, widgetdata.light_G,
-                           widgetdata.light_B, 1.0f}; // 1.0f для альфа-канала
+                           widgetdata.light_B, 1.0f};  // 1.0f для альфа-канала
 
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-//  glLightfv(GL_LIGHT0, GL_AMBIENT, lightColor);
-
-  // Установка рассеянного света
-  GLfloat diffuseColor[] = { 0.8f, 0.8f, 0.8f, 1.0f };
   glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
-
-  // Установка зеркального света
-//  GLfloat specularColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-//  glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
 }
 
-} // namespace s21
+}  // namespace s21
