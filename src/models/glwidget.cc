@@ -24,7 +24,6 @@ void glWidget::paintGL() {
     setScale();
     rotateModel();
     loadBGColor();
-
     setTypeViews();
     glColor3f(widgetdata.LineColor_.redF(), widgetdata.LineColor_.greenF(),
               widgetdata.LineColor_.blueF());
@@ -179,8 +178,6 @@ void glWidget::typeViewsModel() {
 }
 
 void glWidget::paintWireFrame() {
-  glEnableClientState(GL_VERTEX_ARRAY);
-
   setTypeLine();
   glLineWidth(widgetdata.LineThick_);
 
@@ -200,7 +197,6 @@ void glWidget::paintShading() {
   loadTexture();
   setLight();
 
-  glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
 
@@ -213,7 +209,6 @@ void glWidget::paintShading() {
 
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
 
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_NORMALIZE);
