@@ -1,10 +1,9 @@
 #ifndef CPP4_3DVIEWER_V2_0_SRC_PATTERNS_STRATEGY_H_
 #define CPP4_3DVIEWER_V2_0_SRC_PATTERNS_STRATEGY_H_
 
+#include "../models/parse.h"
 #include "../views/gif.h"
 #include "views/mainwindow.h"
-#include "../models/parse.h"
-
 
 enum strategy { makeImage = 0, makeGif, makeUV };
 
@@ -44,8 +43,6 @@ class StrategyUV : public Strategy {
 
  private:
   Ui::MainWindow *ui_;
-
-
 };
 
 class MediaMaker {

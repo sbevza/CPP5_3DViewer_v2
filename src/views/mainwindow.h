@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow {
 
   void on_Light_button_clicked();
 
-  private:
+ private:
   Ui::MainWindow* ui_;
   QSettings settings_;
   s21::Controller* controller_;

@@ -27,11 +27,13 @@ void Parser::parseObj(Attrib &attrib, std::string &filename) {
   }
 }
 
-void Parser::processLine(std::vector<Command> &commands, const std::vector<char> &buf,
-                         const LineInfo &lineInfo, size_t &numV) {
-  std::string line = std::string(buf.begin() + static_cast<std::ptrdiff_t>(lineInfo.pos),
-                                 buf.begin() + static_cast<std::ptrdiff_t>(lineInfo.pos) +
-                                     static_cast<std::ptrdiff_t>(lineInfo.len));
+void Parser::processLine(std::vector<Command> &commands,
+                         const std::vector<char> &buf, const LineInfo &lineInfo,
+                         size_t &numV) {
+  std::string line =
+      std::string(buf.begin() + static_cast<std::ptrdiff_t>(lineInfo.pos),
+                  buf.begin() + static_cast<std::ptrdiff_t>(lineInfo.pos) +
+                      static_cast<std::ptrdiff_t>(lineInfo.len));
   Command command;
   if (parseLine(command, line)) {
     if (command.type == CommandType::V) {
@@ -82,7 +84,7 @@ std::vector<char> Parser::getFileData(const std::string &filename) {
 
 int Parser::isLineEnding(const std::vector<char> &ch, size_t i, size_t end_i) {
   return (ch[i] == '\0') || (ch[i] == '\n') ||
-      ((ch[i] == '\r') && (((i + 1) < end_i) && (ch[i + 1] != '\n')));
+         ((ch[i] == '\r') && (((i + 1) < end_i) && (ch[i + 1] != '\n')));
 }
 
 std::vector<LineInfo> Parser::getLineInfos(const std::vector<char> &buf) {
@@ -119,7 +121,8 @@ VertexIndex Parser::parseRawTriple(const std::string &str, size_t &pos) {
     size_t secondSlash = subStr.find_first_of('/', firstSlash + 1);
     if (secondSlash != std::string::npos) {
       if (secondSlash != firstSlash + 1) {
-        vi.vtIdx = std::stoi(subStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
+        vi.vtIdx = std::stoi(
+            subStr.substr(firstSlash + 1, secondSlash - firstSlash - 1));
       }
       if (secondSlash + 1 < subStr.size()) {
         vi.vnIdx = std::stoi(subStr.substr(secondSlash + 1));
@@ -241,7 +244,8 @@ void Parser::commandToAttrib(const std::vector<Command> &commands) {
   recalculateNormals();
 }
 
-void Parser::updateAttribPositions(float centerX, float centerY, float centerZ, Bounds &bounds) {
+void Parser::updateAttribPositions(float centerX, float centerY, float centerZ,
+                                   Bounds &bounds) {
   attrib_->minX = bounds.minX - centerX;
   attrib_->maxX = bounds.maxX - centerX;
   attrib_->minY = bounds.minY - centerY;
@@ -256,20 +260,26 @@ void Parser::updateAttribPositions(float centerX, float centerY, float centerZ, 
 }
 
 void Parser::calculateShadeModel() {
-  for (const auto &[vertexIndex, textureIndex, normalIndex] : uniqueFaceShade_) {
+  for (const auto &[vertexIndex, textureIndex, normalIndex] :
+       uniqueFaceShade_) {
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex]);
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 1]);
     attrib_->verticesShade.push_back(attrib_->vertices[3 * vertexIndex + 2]);
 
     if (!attrib_->vertexTexture.empty()) {
-      attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex]);
-      attrib_->vertexTextureShade.push_back(attrib_->vertexTexture[2 * textureIndex + 1]);
+      attrib_->vertexTextureShade.push_back(
+          attrib_->vertexTexture[2 * textureIndex]);
+      attrib_->vertexTextureShade.push_back(
+          attrib_->vertexTexture[2 * textureIndex + 1]);
     }
 
     if (!attrib_->vertexNormal.empty()) {
-      attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex]);
-      attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 1]);
-      attrib_->vertexNormalShade.push_back(attrib_->vertexNormal[3 * normalIndex + 2]);
+      attrib_->vertexNormalShade.push_back(
+          attrib_->vertexNormal[3 * normalIndex]);
+      attrib_->vertexNormalShade.push_back(
+          attrib_->vertexNormal[3 * normalIndex + 1]);
+      attrib_->vertexNormalShade.push_back(
+          attrib_->vertexNormal[3 * normalIndex + 2]);
     }
   }
 }
@@ -277,9 +287,12 @@ void Parser::calculateShadeModel() {
 void Parser::recalculateNormals() {
   if (attrib_->vertexNormal.empty()) {
     for (size_t i = 0; i < attrib_->verticesShade.size(); i += 9) {
-      Vertex v1 = {attrib_->verticesShade[i], attrib_->verticesShade[i + 1], attrib_->verticesShade[i + 2]};
-      Vertex v2 = {attrib_->verticesShade[i + 3], attrib_->verticesShade[i + 4], attrib_->verticesShade[i + 5]};
-      Vertex v3 = {attrib_->verticesShade[i + 6], attrib_->verticesShade[i + 7], attrib_->verticesShade[i + 8]};
+      Vertex v1 = {attrib_->verticesShade[i], attrib_->verticesShade[i + 1],
+                   attrib_->verticesShade[i + 2]};
+      Vertex v2 = {attrib_->verticesShade[i + 3], attrib_->verticesShade[i + 4],
+                   attrib_->verticesShade[i + 5]};
+      Vertex v3 = {attrib_->verticesShade[i + 6], attrib_->verticesShade[i + 7],
+                   attrib_->verticesShade[i + 8]};
 
       Vertex normal = calculateNormal(v1, v2, v3);
 
@@ -303,7 +316,8 @@ void Parser::processTexture(const Command &command) {
   attrib_->vertexTexture.push_back(command.vtV);
 }
 
-void Parser::calculateBounds(const std::vector<Command> &commands, Bounds &bounds) {
+void Parser::calculateBounds(const std::vector<Command> &commands,
+                             Bounds &bounds) {
   for (const auto &command : commands) {
     if (command.type == CommandType::V) {
       bounds.minX = std::min(bounds.minX, command.vx);
@@ -338,7 +352,8 @@ void Parser::processFace(const Command &command, size_t v_count) {
 
     // Замыкание грани
     size_t v_idx = fixIndex(command.f[0], v_count);
-    uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx), std::max(previous_v_idx, v_idx)));
+    uniqueFace_.insert(std::make_pair(std::min(previous_v_idx, v_idx),
+                                      std::max(previous_v_idx, v_idx)));
 
     if (!command.fShade.empty()) {
       for (auto &f : command.fShade) {
@@ -354,13 +369,12 @@ Vertex Parser::calculateNormal(Vertex v1, Vertex v2, Vertex v3) {
   Vertex vec1 = {v2.x - v1.x, v2.y - v1.y, v2.z - v1.z};
   Vertex vec2 = {v3.x - v1.x, v3.y - v1.y, v3.z - v1.z};
 
-  Vertex normal = {
-      vec1.y * vec2.z - vec1.z * vec2.y,
-      vec1.z * vec2.x - vec1.x * vec2.z,
-      vec1.x * vec2.y - vec1.y * vec2.x
-  };
+  Vertex normal = {vec1.y * vec2.z - vec1.z * vec2.y,
+                   vec1.z * vec2.x - vec1.x * vec2.z,
+                   vec1.x * vec2.y - vec1.y * vec2.x};
 
-  float length = std::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+  float length = std::sqrt(normal.x * normal.x + normal.y * normal.y +
+                           normal.z * normal.z);
   normal.x /= length;
   normal.y /= length;
   normal.z /= length;

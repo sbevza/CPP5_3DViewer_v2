@@ -1,13 +1,13 @@
 #ifndef CPP4_3DVIEWER_V2_0_SRC_MODELS_PARSE_H_
 #define CPP4_3DVIEWER_V2_0_SRC_MODELS_PARSE_H_
 
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <set>
-#include <vector>
-#include <cmath>
 #include <sstream>
+#include <vector>
 
 namespace s21 {
 
@@ -76,16 +76,18 @@ class Parser {
   std::vector<std::tuple<int, int, int>> uniqueFaceShade_;
 
   void commandToAttrib(const std::vector<Command> &commands);
-  static std::vector<char> getFileData(const std::string& filename);
+  static std::vector<char> getFileData(const std::string &filename);
   static int isLineEnding(const std::vector<char> &ch, size_t i, size_t end_i);
-  static std::vector<LineInfo> getLineInfos(const std::vector<char>& buf);
-  static void processLine(std::vector<Command>& commands, const std::vector<char>& buf,
-                           const LineInfo& lineInfo, size_t& numV);
+  static std::vector<LineInfo> getLineInfos(const std::vector<char> &buf);
+  static void processLine(std::vector<Command> &commands,
+                          const std::vector<char> &buf,
+                          const LineInfo &lineInfo, size_t &numV);
   static VertexIndex parseRawTriple(const std::string &str, size_t &pos);
   static bool parseLine(Command &command, const std::string &line);
   static size_t fixIndex(int idx, size_t num_v);
   void setAttrib(size_t num_v);
-  static void calculateBounds(const std::vector<Command> &commands, Bounds &bounds);
+  static void calculateBounds(const std::vector<Command> &commands,
+                              Bounds &bounds);
   void processVertex(const Command &command, float centerX, float centerY,
                      float centerZ, size_t &v_count);
   void processFace(const Command &command, size_t v_count);
@@ -95,7 +97,8 @@ class Parser {
   static Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3);
   void recalculateNormals();
   void calculateShadeModel();
-  void updateAttribPositions(float centerX, float centerY, float centerZ, Bounds &bounds);
+  void updateAttribPositions(float centerX, float centerY, float centerZ,
+                             Bounds &bounds);
 };
 }  // namespace s21
 
