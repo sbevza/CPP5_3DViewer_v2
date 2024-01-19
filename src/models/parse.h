@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include <cmath>
+#include <sstream>
 
 namespace s21 {
 
